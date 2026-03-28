@@ -66,13 +66,6 @@ export default function Header() {
               {label}
             </a>
           ))}
-          <Link
-            to="/admin/login"
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-white transition hover:border-[#c9a227]/40 hover:text-[#d9bb64]"
-          >
-            <ShieldCheck className="h-4 w-4" />
-            {dictionary.admin}
-          </Link>
         </nav>
 
         <div className="hidden lg:block">

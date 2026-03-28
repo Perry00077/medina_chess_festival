@@ -44,12 +44,6 @@ export default function Footer() {
                 {label}
               </a>
             ))}
-            <Link
-              to="/admin/login"
-              className="text-sm text-[#d9bb64] transition hover:text-[#f1d57b]"
-            >
-              {dictionary.admin}
-            </Link>
           </div>
         </div>
       </div>

@@ -427,14 +427,7 @@ export default function RegistrationForm() {
             <span>{dictionary.acceptRules}</span>
           </label>
 
-          <div className="space-y-5">
-            <div className="rounded-[24px] border border-[#eadcc4] bg-[#fcfaf6] p-4 text-sm leading-7 text-[#776b5c]">
-              {dictionary.storageNotePrefix}{" "}
-              <code className="rounded bg-[#f1ead9] px-1.5 py-0.5 text-[#8e6717]">
-                registrations
-              </code>{" "}
-              {dictionary.storageNoteSuffix}
-            </div>
+          <div className="space-y-5"> 
 
             <div className="rounded-[28px] border border-[#eadcc4] bg-[#fcfaf6] p-5 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
               <div className="mb-3">

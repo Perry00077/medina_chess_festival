@@ -73,7 +73,6 @@ export default function AdminLoginPage() {
                 <span className="text-sm font-semibold uppercase tracking-[0.18em]">{dictionary.adminLoginTitle}</span>
               </div>
               <h2 className="mt-4 font-display text-3xl text-[#1f1812]">{dictionary.adminPanelAccess}</h2>
-              <p className="mt-3 text-sm leading-7 text-[#5d5448]">{dictionary.adminPanelNote}</p>
 
               <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
                 <label className="grid gap-2">
