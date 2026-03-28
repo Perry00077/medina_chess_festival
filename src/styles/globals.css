@@ -1,0 +1,85 @@
+@import url("https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=Cinzel:wght@500;700&family=Inter:wght@400;500;600;700;800&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply min-h-screen bg-background bg-hero text-foreground antialiased;
+  }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(
+        circle at 20% 10%,
+        rgba(250, 204, 21, 0.12),
+        transparent 16%
+      ),
+      radial-gradient(
+        circle at 85% 18%,
+        rgba(6, 182, 212, 0.1),
+        transparent 14%
+      ),
+      radial-gradient(
+        circle at 50% 100%,
+        rgba(34, 197, 94, 0.1),
+        transparent 18%
+      );
+    pointer-events: none;
+  }
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  select:-webkit-autofill {
+    -webkit-text-fill-color: white;
+    -webkit-box-shadow: 0 0 0px 1000px rgb(17 24 39) inset;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply border border-white/10 bg-white/5 backdrop-blur-md shadow-soft;
+  }
+
+  .section-shell {
+    @apply py-20 sm:py-24;
+  }
+
+  .section-heading {
+    @apply mx-auto flex max-w-2xl flex-col gap-4 text-center;
+  }
+
+  .section-title {
+    @apply font-display text-3xl font-bold tracking-tight text-white sm:text-4xl;
+  }
+
+  .section-copy {
+    @apply text-base leading-7 text-slate-300 sm:text-lg;
+  }
+
+  .chip {
+    @apply inline-flex w-fit items-center rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-primary;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
