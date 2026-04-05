@@ -49,6 +49,20 @@ set public = excluded.public,
     file_size_limit = excluded.file_size_limit,
     allowed_mime_types = excluded.allowed_mime_types;
 
+
+-- Admin users can read private registration documents from storage.
+drop policy if exists "admins can read registration documents" on storage.objects;
+create policy "admins can read registration documents"
+  on storage.objects
+  for select
+  to authenticated
+  using (
+    bucket_id = 'registration-documents'
+    and exists (
+      select 1 from public.admin_users a where a.id = auth.uid()
+    )
+  );
+
 alter table public.registrations enable row level security;
 alter table public.admin_users enable row level security;
 

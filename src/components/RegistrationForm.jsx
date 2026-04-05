@@ -294,12 +294,10 @@ export default function RegistrationForm() {
       return;
     }
 
-    if (!form.has_companion) {
-      const errorMessage = getFileValidationMessage(personalPassport);
-      if (errorMessage) {
-        setStatus({ type: "error", message: errorMessage });
-        return;
-      }
+    const errorMessage = getFileValidationMessage(personalPassport);
+    if (errorMessage) {
+      setStatus({ type: "error", message: errorMessage });
+      return;
     }
 
     let sanitizedCompanions = [];
@@ -346,10 +344,7 @@ export default function RegistrationForm() {
     setLoading(true);
 
     try {
-      const personalPassportPayload =
-        form.has_companion || !personalPassport
-          ? null
-          : await buildSerializableFile(personalPassport);
+      const personalPassportPayload = await buildSerializableFile(personalPassport);
 
       const companionsPayload = await Promise.all(
         sanitizedCompanions.map(async (companion) => ({
@@ -468,7 +463,7 @@ export default function RegistrationForm() {
 
         <p className="mt-3 max-w-2xl text-sm leading-7 text-[#5d5448]">
           {dictionary.passportUploadNotice ||
-            "Si vous êtes seul, veuillez joindre votre passeport. Si vous venez avec des accompagnants, ajoutez leurs noms et leurs passeports."}
+            "Veuillez toujours joindre votre passeport. Si vous venez avec des accompagnants, ajoutez également le passeport de chaque accompagnant."}
         </p>
       </div>
 
@@ -621,27 +616,27 @@ export default function RegistrationForm() {
             <span>{dictionary.withCompanion || "Je viens avec un ou plusieurs accompagnants"}</span>
           </label>
 
-          {!form.has_companion ? (
-            <DocumentCard
-              key={`personal-${fileResetKey}`}
-              title={dictionary.personalPassport || "Passeport du participant"}
-              subtitle={dictionary.fileUploadHelp || "Formats acceptés : PDF, JPG, PNG ou WEBP · 8 Mo max par fichier."}
-            >
-              <input
-                key={`personal-input-${fileResetKey}`}
-                type="file"
-                accept=".pdf,image/jpeg,image/png,image/webp"
-                onChange={handlePersonalPassportChange}
-                className="block w-full rounded-2xl border border-dashed border-[#d8ccb5] bg-white px-4 py-4 text-sm text-[#5d5448] file:mr-4 file:rounded-full file:border-0 file:bg-[#c9a227] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#111111]"
-              />
-              {personalPassport?.file ? (
-                <p className="mt-3 text-sm text-[#4f463b]">
-                  <Upload className="mr-2 inline h-4 w-4" />
-                  {personalPassport.file.name}
-                </p>
-              ) : null}
-            </DocumentCard>
-          ) : (
+          <DocumentCard
+            key={`personal-${fileResetKey}`}
+            title={dictionary.personalPassport || "Passeport du participant"}
+            subtitle={dictionary.fileUploadHelp || "Formats acceptés : PDF, JPG, PNG ou WEBP · 8 Mo max par fichier."}
+          >
+            <input
+              key={`personal-input-${fileResetKey}`}
+              type="file"
+              accept=".pdf,image/jpeg,image/png,image/webp"
+              onChange={handlePersonalPassportChange}
+              className="block w-full rounded-2xl border border-dashed border-[#d8ccb5] bg-white px-4 py-4 text-sm text-[#5d5448] file:mr-4 file:rounded-full file:border-0 file:bg-[#c9a227] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#111111]"
+            />
+            {personalPassport?.file ? (
+              <p className="mt-3 text-sm text-[#4f463b]">
+                <Upload className="mr-2 inline h-4 w-4" />
+                {personalPassport.file.name}
+              </p>
+            ) : null}
+          </DocumentCard>
+
+          {form.has_companion ? (
             <DocumentCard
               title={dictionary.companionsTitle || "Accompagnants"}
               subtitle={dictionary.fileUploadHelp || "Formats acceptés : PDF, JPG, PNG ou WEBP · 8 Mo max par fichier."}
@@ -705,7 +700,7 @@ export default function RegistrationForm() {
                 </button>
               </div>
             </DocumentCard>
-          )}
+          ) : null}
 
           <label className="flex items-start gap-3 rounded-[24px] border border-[#eadcc4] bg-[#fcfaf6] p-4 text-sm leading-7 text-[#5d5448]">
             <Checkbox

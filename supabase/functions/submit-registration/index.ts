@@ -174,16 +174,14 @@ Deno.serve(async (req) => {
     }
 
     let parsedPersonalPassport = null;
-    if (!has_companion) {
-      try {
-        parsedPersonalPassport = parseUpload(personalPassportInput, true);
-      } catch (error) {
-        return jsonResponse(
-          { success: false, error: error instanceof Error ? error.message : "Invalid participant passport" },
-          400,
-          origin,
-        );
-      }
+    try {
+      parsedPersonalPassport = parseUpload(personalPassportInput, true);
+    } catch (error) {
+      return jsonResponse(
+        { success: false, error: error instanceof Error ? error.message : "Invalid participant passport" },
+        400,
+        origin,
+      );
     }
 
     const parsedCompanions = [];

@@ -1,115 +1,97 @@
-import { motion } from "framer-motion";
-import { ArrowLeft, Camera } from "lucide-react";
-import { Link } from "react-router-dom";
-import { useLanguage } from "../../contexts/LanguageContext";
-import hannibalImage from "../../assets/salle-hannibal.jpg";
-import medinaImage from "../../assets/medina.jpg";
-import beachImage from "../../assets/hammamet-yasmine-beach-image.jpg";
-import soukImage from "../../assets/souk.jpg";
+import { Link } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { ArrowLeft, Camera } from 'lucide-react'
+import LanguageSwitcher from '../../components/LanguageSwitcher'
+import { useLanguage } from '../../contexts/LanguageContext'
+import { Button } from '../../components/ui/button'
+import medinaImage from '../../assets/medina.jpg'
+import beachImage from '../../assets/hammamet-yasmine-beach-image.jpg'
+import hannibalImage from '../../assets/salle-hannibal.jpg'
+import soukImage from '../../assets/souk.jpg'
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0 },
-};
-
-const galleryTitles = {
-  fr: [
-    "Salle de jeu Hannibal",
-    "La Medina",
-    "La plage de Yasmine",
-    "Les souks",
-  ],
-  en: [
-    "Hannibal playing hall",
-    "The Medina",
-    "Yasmine beach",
-    "The souks",
-  ],
-  de: [
-    "Hannibal-Spielsaal",
-    "Die Medina",
-    "Der Strand von Yasmine",
-    "Die Souks",
-  ],
-  ru: [
-    "Игровой зал Hannibal",
-    "Медина",
-    "Пляж Ясмин",
-    "Суки",
-  ],
-  ar: [
-    "قاعة اللعب حنبعل",
-    "المدينة",
-    "شاطئ ياسمين",
-    "الأسواق التقليدية",
-  ],
-};
+const images = [
+  {
+    src: medinaImage,
+    title: 'Medina Mediterranea',
+    description: 'Vue emblématique du site principal du festival.',
+  },
+  {
+    src: hannibalImage,
+    title: 'Salle Hannibal',
+    description: 'La salle de jeu plénière pour les principales compétitions.',
+  },
+  {
+    src: beachImage,
+    title: 'Yasmine Hammamet',
+    description: 'L’environnement balnéaire autour du festival.',
+  },
+  {
+    src: soukImage,
+    title: 'Souk & ambiance Medina',
+    description: 'L’atmosphère locale qui accompagne l’expérience du festival.',
+  },
+]
 
 export default function GalleryPage() {
-  const { language, dictionary } = useLanguage();
-  const titles = galleryTitles[language] || galleryTitles.fr;
-  const images = [
-    { image: hannibalImage, title: titles[0] },
-    { image: medinaImage, title: titles[1] },
-    { image: beachImage, title: titles[2] },
-    { image: soukImage, title: titles[3] },
-  ];
+  const { dictionary } = useLanguage()
 
   return (
-    <div className="min-h-screen bg-[#111111] text-[#f4ece1]">
-      <section className="relative overflow-hidden border-b border-[#c9a227]/15 bg-[radial-gradient(circle_at_top,rgba(201,162,39,0.18),transparent_32%),#111111]">
-        <div className="container py-12 sm:py-16">
-          <Link
-            to="/"
-            className="inline-flex items-center gap-2 rounded-full border border-[#c9a227]/25 bg-[#c9a227]/10 px-5 py-3 text-sm font-semibold text-[#f2d77e] transition hover:bg-[#c9a227] hover:text-[#111111]"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            {dictionary.backToHome || "Retour à l’accueil"}
-          </Link>
-
-          <div className="mt-10 max-w-3xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#f0d37b]">
-              <Camera className="h-4 w-4" />
-              {dictionary.gallery || "Galerie"}
+    <div className="min-h-screen bg-[linear-gradient(180deg,#0f1720_0%,#151a23_35%,#f6efe5_35%,#f4ecdf_100%)] text-[#1f1812]">
+      <div className="container px-4 py-6 sm:py-8">
+        <div className="flex flex-col gap-4 rounded-[32px] border border-white/10 bg-[#111111]/90 p-5 text-white shadow-[0_24px_70px_rgba(0,0,0,0.25)] sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#c9a227]/15 text-[#f1d57b]">
+              <Camera className="h-5 w-5" />
             </div>
-            <h1 className="mt-6 font-display text-4xl text-white sm:text-5xl">
-              {dictionary.galleryPageTitle || "Galerie complète"}
-            </h1>
-            <p className="mt-4 max-w-2xl text-sm leading-7 text-[#ddd2c0] sm:text-base">
-              {dictionary.galleryPageDescription || "Retrouvez l’ensemble des photos disponibles du site et de la salle de jeu."}
-            </p>
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#f1d57b]">
+                {dictionary.gallery}
+              </p>
+              <h1 className="mt-1 font-display text-3xl sm:text-4xl">
+                {dictionary.galleryPageTitle || 'Galerie complète'}
+              </h1>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <LanguageSwitcher compact />
+            <Link to="/">
+              <Button className="rounded-full bg-[#c9a227] text-[#111111] shadow-none hover:bg-[#d7b966]">
+                <ArrowLeft className="h-4 w-4" />
+                {dictionary.backToHome || 'Retour à l’accueil'}
+              </Button>
+            </Link>
           </div>
         </div>
-      </section>
 
-      <main className="container py-10 sm:py-14">
-        <div className="grid gap-6 md:grid-cols-2">
-          {images.map((item, index) => (
-            <motion.figure
-              key={item.title}
-              initial="hidden"
-              animate="visible"
-              variants={fadeUp}
-              transition={{ delay: index * 0.08 }}
-              className="overflow-hidden rounded-[32px] border border-white/10 bg-[#171717] shadow-[0_24px_60px_rgba(0,0,0,0.25)]"
-            >
-              <img
-                src={item.image}
-                alt={item.title}
-                className="h-[320px] w-full object-cover sm:h-[420px]"
-              />
-              <figcaption className="border-t border-white/10 px-6 py-5">
-                <p className="text-xs uppercase tracking-[0.22em] text-[#c9a227]">
-                  {dictionary.gallery || "Galerie"}
-                </p>
-                <p className="mt-2 font-display text-2xl text-white">
-                  {item.title}
-                </p>
-              </figcaption>
-            </motion.figure>
-          ))}
+        <div className="mt-8 rounded-[32px] border border-[#dfd3be] bg-white/90 p-6 shadow-[0_20px_55px_rgba(0,0,0,0.08)] backdrop-blur">
+          <p className="max-w-3xl text-sm leading-7 text-[#5d5448] sm:text-base">
+            {dictionary.galleryPageDescription || 'Retrouvez l’ensemble des photos disponibles du site et de la salle de jeu.'}
+          </p>
+
+          <div className="mt-8 grid gap-5 lg:grid-cols-2">
+            {images.map((image, index) => (
+              <motion.article
+                key={image.title}
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.06 }}
+                className="overflow-hidden rounded-[28px] border border-[#eadcc4] bg-[#fcfaf6] shadow-[0_16px_45px_rgba(0,0,0,0.06)]"
+              >
+                <img
+                  src={image.src}
+                  alt={image.title}
+                  className="h-[280px] w-full object-cover sm:h-[340px]"
+                />
+                <div className="space-y-2 p-5">
+                  <h2 className="font-display text-2xl text-[#1f1812]">{image.title}</h2>
+                  <p className="text-sm leading-7 text-[#5d5448]">{image.description}</p>
+                </div>
+              </motion.article>
+            ))}
+          </div>
         </div>
-      </main>
+      </div>
     </div>
-  );
+  )
 }

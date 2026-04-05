@@ -2458,11 +2458,6 @@ export default function LandingPage() {
                 <p className="mt-4 text-sm leading-7 text-[#ddd2c0]">
                   {prizeData.sponsorNote}
                 </p>
-                <a
-                  href="/docs/prizes-mcf-2026.pdf"
-                  download
-                  className="mt-6 inline-flex items-center gap-2 rounded-full border border-[#c9a227]/25 bg-[#c9a227]/10 px-5 py-3 text-sm font-semibold text-[#f2d77e] transition hover:bg-[#c9a227] hover:text-[#111111]"
-                ></a>
               </div>
             </div>
           </div>
