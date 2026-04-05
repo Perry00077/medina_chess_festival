@@ -63,6 +63,30 @@ export const translations = {
     tournamentBlitz: "Blitz · Open",
     messagePlaceholder:
       "Précisez votre arrivée, vos préférences d’hébergement ou toute autre information utile.",
+    withCompanion: "Je viens avec un ou plusieurs accompagnants",
+    personalPassport: "Passeport du participant",
+    personalPassportRequired: "Veuillez joindre le passeport du participant.",
+    companionsTitle: "Accompagnants",
+    companionName: "Nom complet de l’accompagnant",
+    companionPassport: "Passeport de l’accompagnant",
+    addCompanion: "Ajouter un accompagnant",
+    removeCompanion: "Retirer",
+    companionValidationError:
+      "Veuillez renseigner le nom et le passeport de chaque accompagnant.",
+    fileUploadHelp:
+      "Formats acceptés : PDF, JPG, PNG ou WEBP · 8 Mo max par fichier.",
+    invalidFileType: "Format de fichier non autorisé.",
+    fileTooLarge: "Chaque fichier doit faire 8 Mo maximum.",
+    seeMoreGallery: "Voir plus",
+    backToHome: "Retour à l’accueil",
+    galleryPageTitle: "Galerie complète",
+    galleryPageDescription:
+      "Retrouvez l’ensemble des photos disponibles du site et de la salle de jeu.",
+    downloadPrizeList: "Télécharger la liste des prix",
+    downloadMainRules: "Télécharger le règlement général",
+    downloadBlitzRules: "Télécharger le règlement Blitz",
+    passportUploadNotice:
+      "Si vous êtes seul, veuillez joindre votre passeport. Si vous venez avec des accompagnants, ajoutez leurs noms et leurs passeports.",
     storageNotePrefix: "",
     storageNoteSuffix:
       "de Supabase, puis un email automatique est tenté via l’Edge Function existante.",
@@ -156,6 +180,30 @@ export const translations = {
     tournamentBlitz: "Blitz · Open",
     messagePlaceholder:
       "Specify your arrival, accommodation preferences, or any other useful information.",
+    withCompanion: "I am coming with one or more companions",
+    personalPassport: "Player passport",
+    personalPassportRequired: "Please attach the player's passport.",
+    companionsTitle: "Companions",
+    companionName: "Companion full name",
+    companionPassport: "Companion passport",
+    addCompanion: "Add a companion",
+    removeCompanion: "Remove",
+    companionValidationError:
+      "Please provide the full name and passport for each companion.",
+    fileUploadHelp:
+      "Allowed formats: PDF, JPG, PNG or WEBP · 8 MB max per file.",
+    invalidFileType: "Unsupported file format.",
+    fileTooLarge: "Each file must be 8 MB or less.",
+    seeMoreGallery: "See more",
+    backToHome: "Back to home",
+    galleryPageTitle: "Full gallery",
+    galleryPageDescription:
+      "Browse all available photos of the venue and playing hall.",
+    downloadPrizeList: "Download prize list",
+    downloadMainRules: "Download general rules",
+    downloadBlitzRules: "Download blitz rules",
+    passportUploadNotice:
+      "If you are coming alone, please upload your passport. If you are coming with companions, add their names and passports.",
     storageNotePrefix: "",
     storageNoteSuffix:
       "",
@@ -250,6 +298,30 @@ export const translations = {
     tournamentBlitz: "Blitz · Offen",
     messagePlaceholder:
       "Geben Sie Ihre Ankunft, Ihre Unterkunftswünsche oder andere nützliche Informationen an.",
+    withCompanion: "Ich komme mit einer oder mehreren Begleitpersonen",
+    personalPassport: "Reisepass des Teilnehmers",
+    personalPassportRequired: "Bitte laden Sie den Reisepass des Teilnehmers hoch.",
+    companionsTitle: "Begleitpersonen",
+    companionName: "Vollständiger Name der Begleitperson",
+    companionPassport: "Reisepass der Begleitperson",
+    addCompanion: "Begleitperson hinzufügen",
+    removeCompanion: "Entfernen",
+    companionValidationError:
+      "Bitte geben Sie für jede Begleitperson den Namen und den Reisepass an.",
+    fileUploadHelp:
+      "Erlaubte Formate: PDF, JPG, PNG oder WEBP · maximal 8 MB pro Datei.",
+    invalidFileType: "Dateiformat nicht unterstützt.",
+    fileTooLarge: "Jede Datei darf höchstens 8 MB groß sein.",
+    seeMoreGallery: "Mehr sehen",
+    backToHome: "Zur Startseite",
+    galleryPageTitle: "Komplette Galerie",
+    galleryPageDescription:
+      "Alle verfügbaren Fotos des Veranstaltungsortes und des Spielsaals ansehen.",
+    downloadPrizeList: "Preisliste herunterladen",
+    downloadMainRules: "Allgemeine Regeln herunterladen",
+    downloadBlitzRules: "Blitz-Regeln herunterladen",
+    passportUploadNotice:
+      "Wenn Sie allein kommen, laden Sie bitte Ihren Reisepass hoch. Wenn Sie mit Begleitpersonen kommen, fügen Sie deren Namen und Reisepässe hinzu.",
     storageNotePrefix: "",
     storageNoteSuffix:
       "in Supabase gespeichert; anschließend wird über die vorhandene Edge Function eine automatische E-Mail versucht.",
@@ -343,6 +415,30 @@ export const translations = {
     tournamentBlitz: "Blitz · Open",
     messagePlaceholder:
       "Укажите ваше прибытие, предпочтения по проживанию или любую другую полезную информацию.",
+    withCompanion: "Я приезжаю с одним или несколькими сопровождающими",
+    personalPassport: "Паспорт участника",
+    personalPassportRequired: "Пожалуйста, приложите паспорт участника.",
+    companionsTitle: "Сопровождающие",
+    companionName: "Полное имя сопровождающего",
+    companionPassport: "Паспорт сопровождающего",
+    addCompanion: "Добавить сопровождающего",
+    removeCompanion: "Удалить",
+    companionValidationError:
+      "Пожалуйста, укажите полное имя и паспорт для каждого сопровождающего.",
+    fileUploadHelp:
+      "Разрешенные форматы: PDF, JPG, PNG или WEBP · максимум 8 МБ на файл.",
+    invalidFileType: "Неподдерживаемый формат файла.",
+    fileTooLarge: "Размер каждого файла должен быть не больше 8 МБ.",
+    seeMoreGallery: "Смотреть больше",
+    backToHome: "Назад на главную",
+    galleryPageTitle: "Полная галерея",
+    galleryPageDescription:
+      "Просмотрите все доступные фотографии площадки и игрового зала.",
+    downloadPrizeList: "Скачать список призов",
+    downloadMainRules: "Скачать общие правила",
+    downloadBlitzRules: "Скачать правила Blitz",
+    passportUploadNotice:
+      "Если вы приезжаете один, пожалуйста, загрузите свой паспорт. Если вы приезжаете с сопровождающими, добавьте их имена и паспорта.",
     storageNotePrefix: "",
     storageNoteSuffix:
       "в Supabase, затем выполняется попытка отправить автоматическое письмо через существующую Edge Function.",
@@ -432,6 +528,30 @@ export const translations = {
     tournamentBlitz: "Blitz · Open",
     messagePlaceholder:
       "اذكر موعد وصولك أو تفضيلات الإقامة أو أي معلومات مفيدة أخرى.",
+    withCompanion: "سآتي مع مرافق واحد أو أكثر",
+    personalPassport: "جواز سفر المشارك",
+    personalPassportRequired: "يرجى إرفاق جواز سفر المشارك.",
+    companionsTitle: "المرافقون",
+    companionName: "الاسم الكامل للمرافق",
+    companionPassport: "جواز سفر المرافق",
+    addCompanion: "إضافة مرافق",
+    removeCompanion: "حذف",
+    companionValidationError:
+      "يرجى إدخال الاسم الكامل وجواز السفر لكل مرافق.",
+    fileUploadHelp:
+      "الصيغ المسموح بها: PDF أو JPG أو PNG أو WEBP · الحد الأقصى 8 ميغابايت لكل ملف.",
+    invalidFileType: "صيغة الملف غير مدعومة.",
+    fileTooLarge: "يجب ألا يتجاوز كل ملف 8 ميغابايت.",
+    seeMoreGallery: "عرض المزيد",
+    backToHome: "العودة إلى الصفحة الرئيسية",
+    galleryPageTitle: "المعرض الكامل",
+    galleryPageDescription:
+      "تصفح كل الصور المتوفرة للمكان وقاعة اللعب.",
+    downloadPrizeList: "تنزيل قائمة الجوائز",
+    downloadMainRules: "تنزيل النظام العام",
+    downloadBlitzRules: "تنزيل نظام البلتز",
+    passportUploadNotice:
+      "إذا كنت قادمًا وحدك، يرجى رفع جواز سفرك. وإذا كنت قادمًا مع مرافقين، فأضف أسماءهم وجوازات سفرهم.",
     storageNotePrefix: "",
     storageNoteSuffix:
       "داخل Supabase، ثم تتم محاولة إرسال بريد تلقائي عبر Edge Function الحالية.",

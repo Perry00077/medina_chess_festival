@@ -17,14 +17,37 @@ create table if not exists public.registrations (
   tournament text not null check (tournament in ('magistral', 'challenge', 'blitz')),
   hotel text,
   message text,
-  accept_rules boolean not null default false
+  accept_rules boolean not null default false,
+  has_companion boolean not null default false,
+  personal_passport_path text,
+  companions jsonb not null default '[]'::jsonb
 );
+
+alter table public.registrations
+  add column if not exists has_companion boolean not null default false;
+alter table public.registrations
+  add column if not exists personal_passport_path text;
+alter table public.registrations
+  add column if not exists companions jsonb not null default '[]'::jsonb;
 
 create table if not exists public.admin_users (
   id uuid primary key references auth.users(id) on delete cascade,
   email text unique not null,
   created_at timestamptz not null default now()
 );
+
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values (
+  'registration-documents',
+  'registration-documents',
+  false,
+  8388608,
+  array['application/pdf', 'image/jpeg', 'image/png', 'image/webp']
+)
+on conflict (id) do update
+set public = excluded.public,
+    file_size_limit = excluded.file_size_limit,
+    allowed_mime_types = excluded.allowed_mime_types;
 
 alter table public.registrations enable row level security;
 alter table public.admin_users enable row level security;

@@ -1,5 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { AlertCircle, CheckCircle2, Send, ShieldAlert } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Plus,
+  Send,
+  ShieldAlert,
+  Trash2,
+  Upload,
+} from "lucide-react";
 import { motion } from "framer-motion";
 import { supabase } from "@/lib/supabase";
 import { Button } from "./ui/button";
@@ -9,6 +17,14 @@ import { Checkbox } from "./ui/checkbox";
 import { Textarea } from "./ui/textarea";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "../contexts/LanguageContext";
+
+const MAX_FILE_SIZE = 8 * 1024 * 1024;
+const ALLOWED_FILE_TYPES = [
+  "application/pdf",
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+];
 
 const initialState = {
   first_name: "",
@@ -24,7 +40,16 @@ const initialState = {
   message: "",
   accept_rules: false,
   website: "",
+  has_companion: false,
 };
+
+function createEmptyCompanion() {
+  return {
+    id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+    full_name: "",
+    passportFile: null,
+  };
+}
 
 const statusStyles = {
   success: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700",
@@ -34,11 +59,34 @@ const statusStyles = {
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+function fileToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.onerror = () => reject(new Error("Unable to read file"));
+    reader.readAsDataURL(file);
+  });
+}
+
+function normalizeFile(file) {
+  if (!file) return null;
+
+  const normalizedType = file.type || "application/octet-stream";
+
+  return {
+    file,
+    type: normalizedType,
+  };
+}
+
 export default function RegistrationForm() {
   const { dictionary } = useLanguage();
   const [form, setForm] = useState(initialState);
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState({ type: "", message: "" });
+  const [personalPassport, setPersonalPassport] = useState(null);
+  const [companions, setCompanions] = useState([createEmptyCompanion()]);
+  const [fileResetKey, setFileResetKey] = useState(0);
 
   const turnstileRef = useRef(null);
   const widgetIdRef = useRef(null);
@@ -115,6 +163,12 @@ export default function RegistrationForm() {
     };
   }, [siteKey]);
 
+  function resetUploads() {
+    setPersonalPassport(null);
+    setCompanions([createEmptyCompanion()]);
+    setFileResetKey((previous) => previous + 1);
+  }
+
   function handleChange(event) {
     const { name, value, type, checked } = event.target;
 
@@ -122,6 +176,70 @@ export default function RegistrationForm() {
       ...previous,
       [name]: type === "checkbox" ? checked : value,
     }));
+
+    if (name === "has_companion" && !checked) {
+      setCompanions([createEmptyCompanion()]);
+    }
+  }
+
+  function handlePersonalPassportChange(event) {
+    setPersonalPassport(normalizeFile(event.target.files?.[0] || null));
+  }
+
+  function handleCompanionValueChange(id, value) {
+    setCompanions((previous) =>
+      previous.map((companion) =>
+        companion.id === id ? { ...companion, full_name: value } : companion,
+      ),
+    );
+  }
+
+  function handleCompanionPassportChange(id, event) {
+    const nextFile = normalizeFile(event.target.files?.[0] || null);
+
+    setCompanions((previous) =>
+      previous.map((companion) =>
+        companion.id === id ? { ...companion, passportFile: nextFile } : companion,
+      ),
+    );
+  }
+
+  function addCompanion() {
+    setCompanions((previous) => [...previous, createEmptyCompanion()]);
+  }
+
+  function removeCompanion(id) {
+    setCompanions((previous) => {
+      const filtered = previous.filter((companion) => companion.id !== id);
+      return filtered.length ? filtered : [createEmptyCompanion()];
+    });
+  }
+
+  function getFileValidationMessage(fileWrapper) {
+    if (!fileWrapper?.file) {
+      return dictionary.personalPassportRequired || "Veuillez joindre le passeport demandé.";
+    }
+
+    if (!ALLOWED_FILE_TYPES.includes(fileWrapper.type)) {
+      return dictionary.invalidFileType || "Format de fichier non autorisé.";
+    }
+
+    if (fileWrapper.file.size > MAX_FILE_SIZE) {
+      return dictionary.fileTooLarge || "Chaque fichier doit faire 8 Mo maximum.";
+    }
+
+    return "";
+  }
+
+  async function buildSerializableFile(fileWrapper) {
+    const dataUrl = await fileToDataUrl(fileWrapper.file);
+
+    return {
+      name: fileWrapper.file.name,
+      type: fileWrapper.type,
+      size: fileWrapper.file.size,
+      dataUrl,
+    };
   }
 
   async function handleSubmit(event) {
@@ -176,80 +294,155 @@ export default function RegistrationForm() {
       return;
     }
 
-    setLoading(true);
+    if (!form.has_companion) {
+      const errorMessage = getFileValidationMessage(personalPassport);
+      if (errorMessage) {
+        setStatus({ type: "error", message: errorMessage });
+        return;
+      }
+    }
 
-    const payload = {
-      first_name: form.first_name.trim().slice(0, 80),
-      last_name: form.last_name.trim().slice(0, 80),
-      full_name: `${form.first_name} ${form.last_name}`.trim().slice(0, 170),
-      email: trimmedEmail,
-      telephone: form.telephone.trim().slice(0, 40),
-      country: form.country.trim().slice(0, 80),
-      birth_date: form.birth_date || null,
-      elo: form.elo.trim().slice(0, 20),
-      fide_id: form.fide_id.trim().slice(0, 30),
-      tournament: form.tournament,
-      hotel: form.hotel || null,
-      message: form.message.trim().slice(0, 1500),
-      accept_rules: form.accept_rules,
-      status: "nouvelle",
-    };
+    let sanitizedCompanions = [];
 
-    const { data, error } = await supabase.functions.invoke(
-      "submit-registration",
-      {
-        body: {
-          ...payload,
-          turnstileToken,
-        },
-      },
-    );
+    if (form.has_companion) {
+      sanitizedCompanions = companions.filter(
+        (companion) => companion.full_name.trim() || companion.passportFile?.file,
+      );
 
-    if (error) {
-      let details =
-        dictionary.formServerError ||
-        "Une erreur est survenue lors de l’enregistrement.";
-
-      try {
-        const text = await error.context.text();
-
-        if (text) {
-          try {
-            const parsed = JSON.parse(text);
-            details = parsed?.error || parsed?.message || text;
-          } catch {
-            details = text;
-          }
-        }
-      } catch {
-        // keep fallback
+      if (!sanitizedCompanions.length) {
+        setStatus({
+          type: "error",
+          message:
+            dictionary.companionValidationError ||
+            "Veuillez renseigner le nom et le passeport de chaque accompagnant.",
+        });
+        return;
       }
 
-      setStatus({ type: "error", message: details });
+      for (const companion of sanitizedCompanions) {
+        if (!companion.full_name.trim()) {
+          setStatus({
+            type: "error",
+            message:
+              dictionary.companionValidationError ||
+              "Veuillez renseigner le nom et le passeport de chaque accompagnant.",
+          });
+          return;
+        }
+
+        const companionError = getFileValidationMessage(companion.passportFile);
+        if (companionError) {
+          setStatus({
+            type: "error",
+            message:
+              dictionary.companionValidationError ||
+              companionError,
+          });
+          return;
+        }
+      }
+    }
+
+    setLoading(true);
+
+    try {
+      const personalPassportPayload =
+        form.has_companion || !personalPassport
+          ? null
+          : await buildSerializableFile(personalPassport);
+
+      const companionsPayload = await Promise.all(
+        sanitizedCompanions.map(async (companion) => ({
+          full_name: companion.full_name.trim().slice(0, 140),
+          passport: await buildSerializableFile(companion.passportFile),
+        })),
+      );
+
+      const payload = {
+        first_name: form.first_name.trim().slice(0, 80),
+        last_name: form.last_name.trim().slice(0, 80),
+        full_name: `${form.first_name} ${form.last_name}`.trim().slice(0, 170),
+        email: trimmedEmail,
+        telephone: form.telephone.trim().slice(0, 40),
+        country: form.country.trim().slice(0, 80),
+        birth_date: form.birth_date || null,
+        elo: form.elo.trim().slice(0, 20),
+        fide_id: form.fide_id.trim().slice(0, 30),
+        tournament: form.tournament,
+        hotel: form.hotel || null,
+        message: form.message.trim().slice(0, 1500),
+        accept_rules: form.accept_rules,
+        status: "nouvelle",
+        has_companion: form.has_companion,
+        personal_passport: personalPassportPayload,
+        companions: companionsPayload,
+      };
+
+      const { data, error } = await supabase.functions.invoke(
+        "submit-registration",
+        {
+          body: {
+            ...payload,
+            turnstileToken,
+          },
+        },
+      );
+
+      if (error) {
+        let details =
+          dictionary.formServerError ||
+          "Une erreur est survenue lors de l’enregistrement.";
+
+        try {
+          const text = await error.context.text();
+
+          if (text) {
+            try {
+              const parsed = JSON.parse(text);
+              details = parsed?.error || parsed?.message || text;
+            } catch {
+              details = text;
+            }
+          }
+        } catch {
+          // keep fallback
+        }
+
+        setStatus({ type: "error", message: details });
+        setLoading(false);
+
+        if (window.turnstile && widgetIdRef.current !== null) {
+          window.turnstile.reset(widgetIdRef.current);
+          setTurnstileToken("");
+        }
+
+        return;
+      }
+
+      setStatus({
+        type: "success",
+        message:
+          data?.message ||
+          dictionary.registrationSuccess ||
+          "Inscription enregistrée avec succès. Nous vous contacterons prochainement.",
+      });
+
+      setForm(initialState);
+      resetUploads();
       setLoading(false);
 
       if (window.turnstile && widgetIdRef.current !== null) {
         window.turnstile.reset(widgetIdRef.current);
         setTurnstileToken("");
       }
-
-      return;
-    }
-
-    setStatus({
-      type: "success",
-      message:
-        data?.message ||
-        dictionary.registrationSuccess ||
-        "Inscription enregistrée avec succès. Nous vous contacterons prochainement.",
-    });
-
-    setForm(initialState);
-    setLoading(false);
-
-    if (window.turnstile && widgetIdRef.current !== null) {
-      window.turnstile.reset(widgetIdRef.current);
-      setTurnstileToken("");
+    } catch {
+      setStatus({
+        type: "error",
+        message:
+          dictionary.formServerError ||
+          "Une erreur est survenue lors de l’enregistrement.",
+      });
+      setLoading(false);
     }
   }
 
@@ -274,7 +467,8 @@ export default function RegistrationForm() {
         </h3>
 
         <p className="mt-3 max-w-2xl text-sm leading-7 text-[#5d5448]">
-          {dictionary.formDescription}
+          {dictionary.passportUploadNotice ||
+            "Si vous êtes seul, veuillez joindre votre passeport. Si vous venez avec des accompagnants, ajoutez leurs noms et leurs passeports."}
         </p>
       </div>
 
@@ -419,6 +613,102 @@ export default function RegistrationForm() {
 
           <label className="flex items-start gap-3 rounded-[24px] border border-[#eadcc4] bg-[#fcfaf6] p-4 text-sm leading-7 text-[#5d5448]">
             <Checkbox
+              name="has_companion"
+              checked={form.has_companion}
+              onChange={handleChange}
+              className="mt-1 h-4 w-4 rounded border-[#cab98d] bg-white text-[#c9a227] focus:ring-[#c9a227]"
+            />
+            <span>{dictionary.withCompanion || "Je viens avec un ou plusieurs accompagnants"}</span>
+          </label>
+
+          {!form.has_companion ? (
+            <DocumentCard
+              key={`personal-${fileResetKey}`}
+              title={dictionary.personalPassport || "Passeport du participant"}
+              subtitle={dictionary.fileUploadHelp || "Formats acceptés : PDF, JPG, PNG ou WEBP · 8 Mo max par fichier."}
+            >
+              <input
+                key={`personal-input-${fileResetKey}`}
+                type="file"
+                accept=".pdf,image/jpeg,image/png,image/webp"
+                onChange={handlePersonalPassportChange}
+                className="block w-full rounded-2xl border border-dashed border-[#d8ccb5] bg-white px-4 py-4 text-sm text-[#5d5448] file:mr-4 file:rounded-full file:border-0 file:bg-[#c9a227] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#111111]"
+              />
+              {personalPassport?.file ? (
+                <p className="mt-3 text-sm text-[#4f463b]">
+                  <Upload className="mr-2 inline h-4 w-4" />
+                  {personalPassport.file.name}
+                </p>
+              ) : null}
+            </DocumentCard>
+          ) : (
+            <DocumentCard
+              title={dictionary.companionsTitle || "Accompagnants"}
+              subtitle={dictionary.fileUploadHelp || "Formats acceptés : PDF, JPG, PNG ou WEBP · 8 Mo max par fichier."}
+            >
+              <div className="space-y-4">
+                {companions.map((companion, index) => (
+                  <div
+                    key={companion.id}
+                    className="rounded-[24px] border border-[#eadcc4] bg-white p-4"
+                  >
+                    <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
+                      <Field label={`${dictionary.companionName || "Nom complet de l’accompagnant"} ${index + 1}`}>
+                        <Input
+                          value={companion.full_name}
+                          onChange={(event) =>
+                            handleCompanionValueChange(companion.id, event.target.value)
+                          }
+                          maxLength={140}
+                          className="border-[#e7dbc7] bg-[#fcfaf6] text-[#1b1712] placeholder:text-[#9e927f] focus-visible:ring-[#c9a227]"
+                        />
+                      </Field>
+
+                      <Field label={dictionary.companionPassport || "Passeport de l’accompagnant"}>
+                        <input
+                          key={`companion-file-${companion.id}-${fileResetKey}`}
+                          type="file"
+                          accept=".pdf,image/jpeg,image/png,image/webp"
+                          onChange={(event) =>
+                            handleCompanionPassportChange(companion.id, event)
+                          }
+                          className="block w-full rounded-2xl border border-dashed border-[#d8ccb5] bg-[#fcfaf6] px-4 py-3 text-sm text-[#5d5448] file:mr-4 file:rounded-full file:border-0 file:bg-[#c9a227] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[#111111]"
+                        />
+                      </Field>
+
+                      <button
+                        type="button"
+                        onClick={() => removeCompanion(companion.id)}
+                        className="inline-flex items-center justify-center gap-2 rounded-full border border-[#d8ccb5] px-4 py-3 text-sm font-semibold text-[#6a5d4d] transition hover:border-[#c9a227] hover:text-[#1b1712]"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        {dictionary.removeCompanion || "Retirer"}
+                      </button>
+                    </div>
+
+                    {companion.passportFile?.file ? (
+                      <p className="mt-3 text-sm text-[#4f463b]">
+                        <Upload className="mr-2 inline h-4 w-4" />
+                        {companion.passportFile.file.name}
+                      </p>
+                    ) : null}
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={addCompanion}
+                  className="inline-flex items-center gap-2 rounded-full border border-[#c9a227]/30 bg-[#c9a227]/10 px-5 py-3 text-sm font-semibold text-[#946f1c] transition hover:bg-[#c9a227] hover:text-[#111111]"
+                >
+                  <Plus className="h-4 w-4" />
+                  {dictionary.addCompanion || "Ajouter un accompagnant"}
+                </button>
+              </div>
+            </DocumentCard>
+          )}
+
+          <label className="flex items-start gap-3 rounded-[24px] border border-[#eadcc4] bg-[#fcfaf6] p-4 text-sm leading-7 text-[#5d5448]">
+            <Checkbox
               name="accept_rules"
               checked={form.accept_rules}
               onChange={handleChange}
@@ -427,8 +717,7 @@ export default function RegistrationForm() {
             <span>{dictionary.acceptRules}</span>
           </label>
 
-          <div className="space-y-5"> 
-
+          <div className="space-y-5">
             <div className="rounded-[28px] border border-[#eadcc4] bg-[#fcfaf6] p-5 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
               <div className="mb-3">
                 <p className="text-sm font-semibold text-[#5f5346]">
@@ -502,5 +791,19 @@ function Field({ label, className, children }) {
       </span>
       {children}
     </label>
+  );
+}
+
+function DocumentCard({ title, subtitle, children }) {
+  return (
+    <div className="rounded-[28px] border border-[#eadcc4] bg-[#fcfaf6] p-5 shadow-[0_10px_30px_rgba(0,0,0,0.04)]">
+      <div className="mb-4">
+        <p className="text-sm font-semibold uppercase tracking-[0.08em] text-[#4c4338]">
+          {title}
+        </p>
+        <p className="mt-1 text-xs leading-6 text-[#7b6d5c]">{subtitle}</p>
+      </div>
+      {children}
+    </div>
   );
 }

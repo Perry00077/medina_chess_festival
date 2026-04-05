@@ -1,11 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
+  ArrowRight,
   BedDouble,
   CalendarDays,
   Camera,
   CheckCircle2,
   Crown,
+  Download,
   MapPin,
   Medal,
   ScrollText,
@@ -30,10 +33,203 @@ const fadeUp = {
   visible: { opacity: 1, y: 0 },
 };
 
+const prizeContentMap = {
+  fr: {
+    generalTitle: "🏆 Classement général",
+    generalHeaders: ["Place", "Magistral", "Challenge", "Blitz", "Total"],
+    generalRows: [
+      ["1°", "3 000 €", "500 €", "300 €", "3 800 €"],
+      ["2°", "1 500 €", "300 €", "200 €", "2 000 €"],
+      ["3°", "1 000 €", "200 €", "150 €", "1 350 €"],
+      ["4°", "700 €", "150 €", "100 €", "950 €"],
+      ["5°", "500 €", "120 €", "50 €", "670 €"],
+      ["6°", "400 €", "100 €", "—", "500 €"],
+      ["7°", "300 €", "100 €", "—", "400 €"],
+      ["8°", "200 €", "100 €", "—", "300 €"],
+      ["9°", "150 €", "100 €", "—", "250 €"],
+      ["10°", "100 €", "100 €", "—", "200 €"],
+      ["TOTAL 1", "7 850 €", "1 770 €", "800 €", "8 770 €"],
+    ],
+    specialTitle: "♟ Catégories spéciales",
+    specialHeaders: ["Catégorie", "Place", "Magistral", "Challenge", "Blitz", "Total"],
+    specialRows: [
+      ["Féminine", "1°", "700 €", "300 €", "—", "1 000 €"],
+      ["Féminine", "2°", "600 €", "200 €", "—", "800 €"],
+      ["Féminine", "3°", "500 €", "100 €", "—", "600 €"],
+      ["TOTAL 2", "", "1 800 €", "600 €", "0 €", "2 400 €"],
+      ["Senior + 50 ans", "1°", "150 €", "100 €", "100 €", "350 €"],
+      ["Vétéran + 65", "1°", "150 €", "100 €", "100 €", "350 €"],
+      ["U18", "1°", "100 €", "100 €", "—", "200 €"],
+      ["U16", "1°", "100 €", "100 €", "—", "200 €"],
+      ["U14", "1°", "100 €", "100 €", "—", "200 €"],
+      ["Spéciaux tunisiens", "1°", "200 €", "150 €", "100 €", "450 €"],
+      ["Spéciaux tunisiens", "2°", "150 €", "100 €", "—", "250 €"],
+      ["Spéciaux tunisiens", "3°", "100 €", "100 €", "—", "200 €"],
+      ["TOTAL 3", "", "1 050 €", "850 €", "300 €", "2 200 €"],
+    ],
+    grandTotalLabel: "TOTAL PRIX",
+    grandTotal: "15 020 €",
+    sponsorNote:
+      "Les prix spéciaux tunisiens en numéraire et en nature seront communiqués ultérieurement par les sponsors.",
+  },
+  en: {
+    generalTitle: "🏆 Overall ranking",
+    generalHeaders: ["Place", "Magistral", "Challenge", "Blitz", "Total"],
+    generalRows: [
+      ["1st", "€3,000", "€500", "€300", "€3,800"],
+      ["2nd", "€1,500", "€300", "€200", "€2,000"],
+      ["3rd", "€1,000", "€200", "€150", "€1,350"],
+      ["4th", "€700", "€150", "€100", "€950"],
+      ["5th", "€500", "€120", "€50", "€670"],
+      ["6th", "€400", "€100", "—", "€500"],
+      ["7th", "€300", "€100", "—", "€400"],
+      ["8th", "€200", "€100", "—", "€300"],
+      ["9th", "€150", "€100", "—", "€250"],
+      ["10th", "€100", "€100", "—", "€200"],
+      ["TOTAL 1", "€7,850", "€1,770", "€800", "€8,770"],
+    ],
+    specialTitle: "♟ Special categories",
+    specialHeaders: ["Category", "Place", "Magistral", "Challenge", "Blitz", "Total"],
+    specialRows: [
+      ["Women", "1st", "€700", "€300", "—", "€1,000"],
+      ["Women", "2nd", "€600", "€200", "—", "€800"],
+      ["Women", "3rd", "€500", "€100", "—", "€600"],
+      ["TOTAL 2", "", "€1,800", "€600", "€0", "€2,400"],
+      ["Senior +50", "1st", "€150", "€100", "€100", "€350"],
+      ["Veteran +65", "1st", "€150", "€100", "€100", "€350"],
+      ["U18", "1st", "€100", "€100", "—", "€200"],
+      ["U16", "1st", "€100", "€100", "—", "€200"],
+      ["U14", "1st", "€100", "€100", "—", "€200"],
+      ["Tunisian special prizes", "1st", "€200", "€150", "€100", "€450"],
+      ["Tunisian special prizes", "2nd", "€150", "€100", "—", "€250"],
+      ["Tunisian special prizes", "3rd", "€100", "€100", "—", "€200"],
+      ["TOTAL 3", "", "€1,050", "€850", "€300", "€2,200"],
+    ],
+    grandTotalLabel: "TOTAL PRIZES",
+    grandTotal: "€15,020",
+    sponsorNote:
+      "Special Tunisian cash and in-kind prizes will be announced later by the sponsors.",
+  },
+  de: {
+    generalTitle: "🏆 Gesamtwertung",
+    generalHeaders: ["Platz", "Magistral", "Challenge", "Blitz", "Total"],
+    generalRows: [
+      ["1.", "3 000 €", "500 €", "300 €", "3 800 €"],
+      ["2.", "1 500 €", "300 €", "200 €", "2 000 €"],
+      ["3.", "1 000 €", "200 €", "150 €", "1 350 €"],
+      ["4.", "700 €", "150 €", "100 €", "950 €"],
+      ["5.", "500 €", "120 €", "50 €", "670 €"],
+      ["6.", "400 €", "100 €", "—", "500 €"],
+      ["7.", "300 €", "100 €", "—", "400 €"],
+      ["8.", "200 €", "100 €", "—", "300 €"],
+      ["9.", "150 €", "100 €", "—", "250 €"],
+      ["10.", "100 €", "100 €", "—", "200 €"],
+      ["TOTAL 1", "7 850 €", "1 770 €", "800 €", "8 770 €"],
+    ],
+    specialTitle: "♟ Sonderkategorien",
+    specialHeaders: ["Kategorie", "Platz", "Magistral", "Challenge", "Blitz", "Total"],
+    specialRows: [
+      ["Damen", "1.", "700 €", "300 €", "—", "1 000 €"],
+      ["Damen", "2.", "600 €", "200 €", "—", "800 €"],
+      ["Damen", "3.", "500 €", "100 €", "—", "600 €"],
+      ["TOTAL 2", "", "1 800 €", "600 €", "0 €", "2 400 €"],
+      ["Senior +50", "1.", "150 €", "100 €", "100 €", "350 €"],
+      ["Veteran +65", "1.", "150 €", "100 €", "100 €", "350 €"],
+      ["U18", "1.", "100 €", "100 €", "—", "200 €"],
+      ["U16", "1.", "100 €", "100 €", "—", "200 €"],
+      ["U14", "1.", "100 €", "100 €", "—", "200 €"],
+      ["Tunesische Sonderpreise", "1.", "200 €", "150 €", "100 €", "450 €"],
+      ["Tunesische Sonderpreise", "2.", "150 €", "100 €", "—", "250 €"],
+      ["Tunesische Sonderpreise", "3.", "100 €", "100 €", "—", "200 €"],
+      ["TOTAL 3", "", "1 050 €", "850 €", "300 €", "2 200 €"],
+    ],
+    grandTotalLabel: "GESAMTPREISFONDS",
+    grandTotal: "15 020 €",
+    sponsorNote:
+      "Tunesische Sonderpreise in Geld- und Sachwerten werden später von den Sponsoren bekanntgegeben.",
+  },
+  ru: {
+    generalTitle: "🏆 Общий зачет",
+    generalHeaders: ["Место", "Magistral", "Challenge", "Blitz", "Итого"],
+    generalRows: [
+      ["1", "3 000 €", "500 €", "300 €", "3 800 €"],
+      ["2", "1 500 €", "300 €", "200 €", "2 000 €"],
+      ["3", "1 000 €", "200 €", "150 €", "1 350 €"],
+      ["4", "700 €", "150 €", "100 €", "950 €"],
+      ["5", "500 €", "120 €", "50 €", "670 €"],
+      ["6", "400 €", "100 €", "—", "500 €"],
+      ["7", "300 €", "100 €", "—", "400 €"],
+      ["8", "200 €", "100 €", "—", "300 €"],
+      ["9", "150 €", "100 €", "—", "250 €"],
+      ["10", "100 €", "100 €", "—", "200 €"],
+      ["TOTAL 1", "7 850 €", "1 770 €", "800 €", "8 770 €"],
+    ],
+    specialTitle: "♟ Специальные категории",
+    specialHeaders: ["Категория", "Место", "Magistral", "Challenge", "Blitz", "Итого"],
+    specialRows: [
+      ["Женщины", "1", "700 €", "300 €", "—", "1 000 €"],
+      ["Женщины", "2", "600 €", "200 €", "—", "800 €"],
+      ["Женщины", "3", "500 €", "100 €", "—", "600 €"],
+      ["TOTAL 2", "", "1 800 €", "600 €", "0 €", "2 400 €"],
+      ["Сеньор +50", "1", "150 €", "100 €", "100 €", "350 €"],
+      ["Ветеран +65", "1", "150 €", "100 €", "100 €", "350 €"],
+      ["U18", "1", "100 €", "100 €", "—", "200 €"],
+      ["U16", "1", "100 €", "100 €", "—", "200 €"],
+      ["U14", "1", "100 €", "100 €", "—", "200 €"],
+      ["Специальные призы Туниса", "1", "200 €", "150 €", "100 €", "450 €"],
+      ["Специальные призы Туниса", "2", "150 €", "100 €", "—", "250 €"],
+      ["Специальные призы Туниса", "3", "100 €", "100 €", "—", "200 €"],
+      ["TOTAL 3", "", "1 050 €", "850 €", "300 €", "2 200 €"],
+    ],
+    grandTotalLabel: "ОБЩИЙ ПРИЗОВОЙ ФОНД",
+    grandTotal: "15 020 €",
+    sponsorNote:
+      "Специальные тунисские денежные и натуральные призы будут объявлены позже спонсорами.",
+  },
+  ar: {
+    generalTitle: "🏆 الترتيب العام",
+    generalHeaders: ["الرتبة", "Magistral", "Challenge", "Blitz", "المجموع"],
+    generalRows: [
+      ["1", "3 000 €", "500 €", "300 €", "3 800 €"],
+      ["2", "1 500 €", "300 €", "200 €", "2 000 €"],
+      ["3", "1 000 €", "200 €", "150 €", "1 350 €"],
+      ["4", "700 €", "150 €", "100 €", "950 €"],
+      ["5", "500 €", "120 €", "50 €", "670 €"],
+      ["6", "400 €", "100 €", "—", "500 €"],
+      ["7", "300 €", "100 €", "—", "400 €"],
+      ["8", "200 €", "100 €", "—", "300 €"],
+      ["9", "150 €", "100 €", "—", "250 €"],
+      ["10", "100 €", "100 €", "—", "200 €"],
+      ["TOTAL 1", "7 850 €", "1 770 €", "800 €", "8 770 €"],
+    ],
+    specialTitle: "♟ الفئات الخاصة",
+    specialHeaders: ["الفئة", "الرتبة", "Magistral", "Challenge", "Blitz", "المجموع"],
+    specialRows: [
+      ["السيدات", "1", "700 €", "300 €", "—", "1 000 €"],
+      ["السيدات", "2", "600 €", "200 €", "—", "800 €"],
+      ["السيدات", "3", "500 €", "100 €", "—", "600 €"],
+      ["TOTAL 2", "", "1 800 €", "600 €", "0 €", "2 400 €"],
+      ["كبار السن +50", "1", "150 €", "100 €", "100 €", "350 €"],
+      ["قدماء +65", "1", "150 €", "100 €", "100 €", "350 €"],
+      ["U18", "1", "100 €", "100 €", "—", "200 €"],
+      ["U16", "1", "100 €", "100 €", "—", "200 €"],
+      ["U14", "1", "100 €", "100 €", "—", "200 €"],
+      ["جوائز تونسية خاصة", "1", "200 €", "150 €", "100 €", "450 €"],
+      ["جوائز تونسية خاصة", "2", "150 €", "100 €", "—", "250 €"],
+      ["جوائز تونسية خاصة", "3", "100 €", "100 €", "—", "200 €"],
+      ["TOTAL 3", "", "1 050 €", "850 €", "300 €", "2 200 €"],
+    ],
+    grandTotalLabel: "إجمالي الجوائز",
+    grandTotal: "15 020 €",
+    sponsorNote:
+      "سيتم الإعلان لاحقًا عن الجوائز التونسية الخاصة النقدية والعينية من طرف الرعاة.",
+  },
+};
+
 const landingContent = {
   fr: {
     stats: [
-      { value: "+15 000 €", label: "de prix", icon: Medal },
+      { value: "15 020 €", label: "de prix", icon: Medal },
       { value: "3", label: "tournois", icon: Crown },
       { value: "9", label: "nuits", icon: BedDouble },
       { value: "FIDE", label: "homologué", icon: Shield },
@@ -786,7 +982,7 @@ const landingContent = {
   },
   de: {
     stats: [
-      { value: "+15 000 €", label: "Preisgeld", icon: Medal },
+      { value: "15 020 €", label: "Preisgeld", icon: Medal },
       { value: "3", label: "Turniere", icon: Crown },
       { value: "9", label: "Nächte", icon: BedDouble },
       { value: "FIDE", label: "anerkannt", icon: Shield },
@@ -1153,7 +1349,7 @@ const landingContent = {
   },
   ru: {
     stats: [
-      { value: "+15 000 €", label: "призовой фонд", icon: Medal },
+      { value: "15 020 €", label: "призовой фонд", icon: Medal },
       { value: "3", label: "турнира", icon: Crown },
       { value: "9", label: "ночей", icon: BedDouble },
       { value: "FIDE", label: "рейтинг", icon: Shield },
@@ -1543,7 +1739,7 @@ const landingContent = {
   },
   ar: {
     stats: [
-      { value: "+15 000 €", label: "جوائز", icon: Medal },
+      { value: "15 020 €", label: "جوائز", icon: Medal },
       { value: "3", label: "دورات", icon: Crown },
       { value: "9", label: "ليالٍ", icon: BedDouble },
       { value: "FIDE", label: "معتمد", icon: Shield },
@@ -1919,6 +2115,7 @@ export default function LandingPage() {
   const { language, dictionary } = useLanguage();
   const countdown = useFestivalCountdown("2026-09-15T23:59:59");
   const content = landingContent[language] || landingContent.fr;
+  const prizeData = prizeContentMap[language] || prizeContentMap.fr;
 
   return (
     <div className="min-h-screen bg-[#f6efe5] text-[#1b1712]">
@@ -2217,29 +2414,38 @@ export default function LandingPage() {
           emphasis={content.prizes.emphasis}
           accent
         >
-          <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
             <PrizeTableCard
-              title={content.prizes.generalTitle}
-              headers={content.prizes.generalHeaders}
-              rows={content.prizes.generalRows}
+              title={prizeData.generalTitle}
+              headers={prizeData.generalHeaders}
+              rows={prizeData.generalRows}
             />
             <div className="grid gap-6">
               <PrizeTableCard
-                title={content.prizes.specialTitle}
-                headers={content.prizes.specialHeaders}
-                rows={content.prizes.specialRows}
+                title={prizeData.specialTitle}
+                headers={prizeData.specialHeaders}
+                rows={prizeData.specialRows}
                 compact
               />
               <div className="rounded-[32px] border border-[#d4bf7a] bg-[#111111] p-6 text-[#f4ece1] shadow-[0_25px_80px_rgba(0,0,0,0.16)]">
                 <div className="flex items-center gap-3 text-[#f0d37b]">
-                  <Trophy className="h-5 w-5" /> {content.prizes.envelopeTitle}
+                  <Trophy className="h-5 w-5" />
+                  {prizeData.grandTotalLabel}
                 </div>
                 <div className="mt-3 font-display text-5xl text-white">
-                  15 000 €
+                  {prizeData.grandTotal}
                 </div>
                 <p className="mt-4 text-sm leading-7 text-[#ddd2c0]">
-                  {content.prizes.envelopeText}
+                  {prizeData.sponsorNote}
                 </p>
+                <a
+                  href="/docs/prizes-mcf-2026.pdf"
+                  download
+                  className="mt-6 inline-flex items-center gap-2 rounded-full border border-[#c9a227]/25 bg-[#c9a227]/10 px-5 py-3 text-sm font-semibold text-[#f2d77e] transition hover:bg-[#c9a227] hover:text-[#111111]"
+                >
+                  <Download className="h-4 w-4" />
+                  {dictionary.downloadPrizeList || "Télécharger la liste des prix"}
+                </a>
               </div>
             </div>
           </div>
@@ -2346,6 +2552,25 @@ export default function LandingPage() {
               </motion.article>
             ))}
           </div>
+
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <a
+              href="/docs/reglement-interieur-mcf-2026.docx"
+              download
+              className="inline-flex items-center gap-2 rounded-full border border-[#c9a227]/25 bg-[#111111] px-5 py-3 text-sm font-semibold text-[#f2d77e] transition hover:bg-[#c9a227] hover:text-[#111111]"
+            >
+              <Download className="h-4 w-4" />
+              {dictionary.downloadMainRules || "Télécharger le règlement général"}
+            </a>
+            <a
+              href="/docs/reglement-interieur-blitz-mcf-2026.docx"
+              download
+              className="inline-flex items-center gap-2 rounded-full border border-[#c9a227]/25 bg-[#111111] px-5 py-3 text-sm font-semibold text-[#f2d77e] transition hover:bg-[#c9a227] hover:text-[#111111]"
+            >
+              <Download className="h-4 w-4" />
+              {dictionary.downloadBlitzRules || "Télécharger le règlement Blitz"}
+            </a>
+          </div>
         </Section>
 
         <Section
@@ -2425,6 +2650,16 @@ export default function LandingPage() {
                 </div>
               </motion.div>
             ))}
+          </div>
+
+          <div className="mt-8 flex justify-center">
+            <Link
+              to="/gallery"
+              className="inline-flex items-center gap-2 rounded-full border border-[#c9a227]/25 bg-[#c9a227]/10 px-5 py-3 text-sm font-semibold text-[#f2d77e] transition hover:bg-[#c9a227] hover:text-[#111111]"
+            >
+              {dictionary.seeMoreGallery || "Voir plus"}
+              <ArrowRight className="h-4 w-4" />
+            </Link>
           </div>
         </Section>
 
