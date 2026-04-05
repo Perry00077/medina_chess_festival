@@ -48,15 +48,20 @@ const prizeContentMap = {
       ["8°", "200 €", "100 €", "—", "300 €"],
       ["9°", "150 €", "100 €", "—", "250 €"],
       ["10°", "100 €", "100 €", "—", "200 €"],
-      ["TOTAL 1", "7 850 €", "1 770 €", "800 €", "8 770 €"],
     ],
     specialTitle: "♟ Catégories spéciales",
-    specialHeaders: ["Catégorie", "Place", "Magistral", "Challenge", "Blitz", "Total"],
+    specialHeaders: [
+      "Catégorie",
+      "Place",
+      "Magistral",
+      "Challenge",
+      "Blitz",
+      "Total",
+    ],
     specialRows: [
       ["Féminine", "1°", "700 €", "300 €", "—", "1 000 €"],
       ["Féminine", "2°", "600 €", "200 €", "—", "800 €"],
       ["Féminine", "3°", "500 €", "100 €", "—", "600 €"],
-      ["TOTAL 2", "", "1 800 €", "600 €", "0 €", "2 400 €"],
       ["Senior + 50 ans", "1°", "150 €", "100 €", "100 €", "350 €"],
       ["Vétéran + 65", "1°", "150 €", "100 €", "100 €", "350 €"],
       ["U18", "1°", "100 €", "100 €", "—", "200 €"],
@@ -65,7 +70,6 @@ const prizeContentMap = {
       ["Spéciaux tunisiens", "1°", "200 €", "150 €", "100 €", "450 €"],
       ["Spéciaux tunisiens", "2°", "150 €", "100 €", "—", "250 €"],
       ["Spéciaux tunisiens", "3°", "100 €", "100 €", "—", "200 €"],
-      ["TOTAL 3", "", "1 050 €", "850 €", "300 €", "2 200 €"],
     ],
     grandTotalLabel: "TOTAL PRIX",
     grandTotal: "15 020 €",
@@ -86,15 +90,20 @@ const prizeContentMap = {
       ["8th", "€200", "€100", "—", "€300"],
       ["9th", "€150", "€100", "—", "€250"],
       ["10th", "€100", "€100", "—", "€200"],
-      ["TOTAL 1", "€7,850", "€1,770", "€800", "€8,770"],
     ],
     specialTitle: "♟ Special categories",
-    specialHeaders: ["Category", "Place", "Magistral", "Challenge", "Blitz", "Total"],
+    specialHeaders: [
+      "Category",
+      "Place",
+      "Magistral",
+      "Challenge",
+      "Blitz",
+      "Total",
+    ],
     specialRows: [
       ["Women", "1st", "€700", "€300", "—", "€1,000"],
       ["Women", "2nd", "€600", "€200", "—", "€800"],
       ["Women", "3rd", "€500", "€100", "—", "€600"],
-      ["TOTAL 2", "", "€1,800", "€600", "€0", "€2,400"],
       ["Senior +50", "1st", "€150", "€100", "€100", "€350"],
       ["Veteran +65", "1st", "€150", "€100", "€100", "€350"],
       ["U18", "1st", "€100", "€100", "—", "€200"],
@@ -103,7 +112,6 @@ const prizeContentMap = {
       ["Tunisian special prizes", "1st", "€200", "€150", "€100", "€450"],
       ["Tunisian special prizes", "2nd", "€150", "€100", "—", "€250"],
       ["Tunisian special prizes", "3rd", "€100", "€100", "—", "€200"],
-      ["TOTAL 3", "", "€1,050", "€850", "€300", "€2,200"],
     ],
     grandTotalLabel: "TOTAL PRIZES",
     grandTotal: "€15,020",
@@ -124,15 +132,20 @@ const prizeContentMap = {
       ["8.", "200 €", "100 €", "—", "300 €"],
       ["9.", "150 €", "100 €", "—", "250 €"],
       ["10.", "100 €", "100 €", "—", "200 €"],
-      ["TOTAL 1", "7 850 €", "1 770 €", "800 €", "8 770 €"],
     ],
     specialTitle: "♟ Sonderkategorien",
-    specialHeaders: ["Kategorie", "Platz", "Magistral", "Challenge", "Blitz", "Total"],
+    specialHeaders: [
+      "Kategorie",
+      "Platz",
+      "Magistral",
+      "Challenge",
+      "Blitz",
+      "Total",
+    ],
     specialRows: [
       ["Damen", "1.", "700 €", "300 €", "—", "1 000 €"],
       ["Damen", "2.", "600 €", "200 €", "—", "800 €"],
       ["Damen", "3.", "500 €", "100 €", "—", "600 €"],
-      ["TOTAL 2", "", "1 800 €", "600 €", "0 €", "2 400 €"],
       ["Senior +50", "1.", "150 €", "100 €", "100 €", "350 €"],
       ["Veteran +65", "1.", "150 €", "100 €", "100 €", "350 €"],
       ["U18", "1.", "100 €", "100 €", "—", "200 €"],
@@ -141,7 +154,6 @@ const prizeContentMap = {
       ["Tunesische Sonderpreise", "1.", "200 €", "150 €", "100 €", "450 €"],
       ["Tunesische Sonderpreise", "2.", "150 €", "100 €", "—", "250 €"],
       ["Tunesische Sonderpreise", "3.", "100 €", "100 €", "—", "200 €"],
-      ["TOTAL 3", "", "1 050 €", "850 €", "300 €", "2 200 €"],
     ],
     grandTotalLabel: "GESAMTPREISFONDS",
     grandTotal: "15 020 €",
@@ -162,15 +174,20 @@ const prizeContentMap = {
       ["8", "200 €", "100 €", "—", "300 €"],
       ["9", "150 €", "100 €", "—", "250 €"],
       ["10", "100 €", "100 €", "—", "200 €"],
-      ["TOTAL 1", "7 850 €", "1 770 €", "800 €", "8 770 €"],
     ],
     specialTitle: "♟ Специальные категории",
-    specialHeaders: ["Категория", "Место", "Magistral", "Challenge", "Blitz", "Итого"],
+    specialHeaders: [
+      "Категория",
+      "Место",
+      "Magistral",
+      "Challenge",
+      "Blitz",
+      "Итого",
+    ],
     specialRows: [
       ["Женщины", "1", "700 €", "300 €", "—", "1 000 €"],
       ["Женщины", "2", "600 €", "200 €", "—", "800 €"],
       ["Женщины", "3", "500 €", "100 €", "—", "600 €"],
-      ["TOTAL 2", "", "1 800 €", "600 €", "0 €", "2 400 €"],
       ["Сеньор +50", "1", "150 €", "100 €", "100 €", "350 €"],
       ["Ветеран +65", "1", "150 €", "100 €", "100 €", "350 €"],
       ["U18", "1", "100 €", "100 €", "—", "200 €"],
@@ -179,7 +196,6 @@ const prizeContentMap = {
       ["Специальные призы Туниса", "1", "200 €", "150 €", "100 €", "450 €"],
       ["Специальные призы Туниса", "2", "150 €", "100 €", "—", "250 €"],
       ["Специальные призы Туниса", "3", "100 €", "100 €", "—", "200 €"],
-      ["TOTAL 3", "", "1 050 €", "850 €", "300 €", "2 200 €"],
     ],
     grandTotalLabel: "ОБЩИЙ ПРИЗОВОЙ ФОНД",
     grandTotal: "15 020 €",
@@ -200,15 +216,20 @@ const prizeContentMap = {
       ["8", "200 €", "100 €", "—", "300 €"],
       ["9", "150 €", "100 €", "—", "250 €"],
       ["10", "100 €", "100 €", "—", "200 €"],
-      ["TOTAL 1", "7 850 €", "1 770 €", "800 €", "8 770 €"],
     ],
     specialTitle: "♟ الفئات الخاصة",
-    specialHeaders: ["الفئة", "الرتبة", "Magistral", "Challenge", "Blitz", "المجموع"],
+    specialHeaders: [
+      "الفئة",
+      "الرتبة",
+      "Magistral",
+      "Challenge",
+      "Blitz",
+      "المجموع",
+    ],
     specialRows: [
       ["السيدات", "1", "700 €", "300 €", "—", "1 000 €"],
       ["السيدات", "2", "600 €", "200 €", "—", "800 €"],
       ["السيدات", "3", "500 €", "100 €", "—", "600 €"],
-      ["TOTAL 2", "", "1 800 €", "600 €", "0 €", "2 400 €"],
       ["كبار السن +50", "1", "150 €", "100 €", "100 €", "350 €"],
       ["قدماء +65", "1", "150 €", "100 €", "100 €", "350 €"],
       ["U18", "1", "100 €", "100 €", "—", "200 €"],
@@ -217,7 +238,6 @@ const prizeContentMap = {
       ["جوائز تونسية خاصة", "1", "200 €", "150 €", "100 €", "450 €"],
       ["جوائز تونسية خاصة", "2", "150 €", "100 €", "—", "250 €"],
       ["جوائز تونسية خاصة", "3", "100 €", "100 €", "—", "200 €"],
-      ["TOTAL 3", "", "1 050 €", "850 €", "300 €", "2 200 €"],
     ],
     grandTotalLabel: "إجمالي الجوائز",
     grandTotal: "15 020 €",
@@ -2442,10 +2462,7 @@ export default function LandingPage() {
                   href="/docs/prizes-mcf-2026.pdf"
                   download
                   className="mt-6 inline-flex items-center gap-2 rounded-full border border-[#c9a227]/25 bg-[#c9a227]/10 px-5 py-3 text-sm font-semibold text-[#f2d77e] transition hover:bg-[#c9a227] hover:text-[#111111]"
-                >
-                  <Download className="h-4 w-4" />
-                  {dictionary.downloadPrizeList || "Télécharger la liste des prix"}
-                </a>
+                ></a>
               </div>
             </div>
           </div>
@@ -2560,7 +2577,8 @@ export default function LandingPage() {
               className="inline-flex items-center gap-2 rounded-full border border-[#c9a227]/25 bg-[#111111] px-5 py-3 text-sm font-semibold text-[#f2d77e] transition hover:bg-[#c9a227] hover:text-[#111111]"
             >
               <Download className="h-4 w-4" />
-              {dictionary.downloadMainRules || "Télécharger le règlement général"}
+              {dictionary.downloadMainRules ||
+                "Télécharger le règlement général"}
             </a>
             <a
               href="/docs/reglement-interieur-blitz-mcf-2026.docx"
@@ -2568,7 +2586,8 @@ export default function LandingPage() {
               className="inline-flex items-center gap-2 rounded-full border border-[#c9a227]/25 bg-[#111111] px-5 py-3 text-sm font-semibold text-[#f2d77e] transition hover:bg-[#c9a227] hover:text-[#111111]"
             >
               <Download className="h-4 w-4" />
-              {dictionary.downloadBlitzRules || "Télécharger le règlement Blitz"}
+              {dictionary.downloadBlitzRules ||
+                "Télécharger le règlement Blitz"}
             </a>
           </div>
         </Section>
