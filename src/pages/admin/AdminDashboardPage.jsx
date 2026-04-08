@@ -1,12 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
+  Download,
+  Eye,
   FileImage,
   FileText,
   Filter,
   Globe2,
+  LoaderCircle,
   LogOut,
   Search,
+  Trash2,
   Trophy,
   Users,
 } from 'lucide-react'
@@ -52,18 +56,19 @@ function buildDocumentPathList(rows) {
   const paths = new Set()
 
   rows.forEach((row) => {
-    if (row?.personal_passport_path) {
-      paths.add(row.personal_passport_path)
-    }
+    if (row?.personal_passport_path) paths.add(row.personal_passport_path)
 
     normalizeCompanions(row?.companions).forEach((companion) => {
-      if (companion?.passport_path) {
-        paths.add(companion.passport_path)
-      }
+      if (companion?.passport_path) paths.add(companion.passport_path)
     })
   })
 
   return [...paths]
+}
+
+function fileNameFromPath(path) {
+  if (!path) return 'document'
+  return path.split('/').pop() || 'document'
 }
 
 export default function AdminDashboardPage() {
@@ -76,6 +81,8 @@ export default function AdminDashboardPage() {
   const [companionFilter, setCompanionFilter] = useState('all')
   const [countryFilter, setCountryFilter] = useState('')
   const [documentUrls, setDocumentUrls] = useState({})
+  const [deleteState, setDeleteState] = useState({})
+  const [actionMessage, setActionMessage] = useState('')
 
   useEffect(() => {
     let mounted = true
@@ -90,9 +97,7 @@ export default function AdminDashboardPage() {
         setRows(data || [])
       }
 
-      if (mounted) {
-        setLoading(false)
-      }
+      if (mounted) setLoading(false)
     }
 
     loadRows()
@@ -125,19 +130,13 @@ export default function AdminDashboardPage() {
             .from(DOCUMENT_BUCKET)
             .createSignedUrl(path, 60 * 60)
 
-          if (error || !data?.signedUrl) {
-            return [path, null]
-          }
-
+          if (error || !data?.signedUrl) return [path, null]
           return [path, data.signedUrl]
         }),
       )
 
       if (!active) return
-
-      setDocumentUrls(
-        Object.fromEntries(urlEntries.filter(([, url]) => Boolean(url))),
-      )
+      setDocumentUrls(Object.fromEntries(urlEntries.filter(([, url]) => Boolean(url))))
     }
 
     loadDocumentUrls()
@@ -160,19 +159,18 @@ export default function AdminDashboardPage() {
 
     return rows.filter((row) => {
       const rowHasCompanion = hasCompanions(row)
-      const searchMatches = !term
-        || [
-          row.full_name,
-          row.first_name,
-          row.last_name,
-          row.email,
-          row.country,
-          row.tournament,
-          row.hotel,
-          row.message,
-        ]
-          .filter(Boolean)
-          .some((value) => String(value).toLowerCase().includes(term))
+      const searchMatches = !term || [
+        row.full_name,
+        row.first_name,
+        row.last_name,
+        row.email,
+        row.country,
+        row.tournament,
+        row.hotel,
+        row.message,
+      ]
+        .filter(Boolean)
+        .some((value) => String(value).toLowerCase().includes(term))
 
       const tournamentMatches = tournamentFilter === 'all' || row.tournament === tournamentFilter
       const countryMatches = !countryTerm || String(row.country || '').toLowerCase().includes(countryTerm)
@@ -210,7 +208,7 @@ export default function AdminDashboardPage() {
         icon: Trophy,
       },
       {
-        label: dictionary.representedCountries,
+        label: dictionary.representedCountries || 'Pays représentés',
         value: countries,
         icon: Globe2,
       },
@@ -227,6 +225,50 @@ export default function AdminDashboardPage() {
     setTournamentFilter('all')
     setCompanionFilter('all')
     setCountryFilter('')
+  }
+
+  async function handleDeleteRegistration(row) {
+    const confirmed = window.confirm(
+      `Supprimer l'inscription de ${row.full_name || row.email} ? Cette action est irréversible.`,
+    )
+    if (!confirmed) return
+
+    setDeleteState((previous) => ({ ...previous, [row.id]: true }))
+    setActionMessage('')
+
+    try {
+      const { data, error } = await supabase.functions.invoke('admin-delete-registration', {
+        body: { registrationId: row.id },
+      })
+
+      if (error) throw error
+      if (!data?.success) {
+        throw new Error(data?.error || 'Suppression impossible.')
+      }
+
+      setRows((previous) => previous.filter((entry) => entry.id !== row.id))
+      setActionMessage(data?.message || 'Inscription supprimée avec succès.')
+    } catch (error) {
+      let message = 'Suppression impossible.'
+      try {
+        const text = await error.context?.text?.()
+        if (text) {
+          try {
+            const parsed = JSON.parse(text)
+            message = parsed?.error || parsed?.message || text
+          } catch {
+            message = text
+          }
+        } else if (error instanceof Error) {
+          message = error.message
+        }
+      } catch {
+        if (error instanceof Error) message = error.message
+      }
+      setActionMessage(message)
+    } finally {
+      setDeleteState((previous) => ({ ...previous, [row.id]: false }))
+    }
   }
 
   return (
@@ -258,6 +300,12 @@ export default function AdminDashboardPage() {
             </div>
           </div>
         </div>
+
+        {actionMessage ? (
+          <div className="rounded-[24px] border border-[#eadcc4] bg-white px-5 py-4 text-sm text-[#5d5448] shadow-[0_12px_40px_rgba(0,0,0,0.06)]">
+            {actionMessage}
+          </div>
+        ) : null}
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
           {stats.map((item, index) => {
@@ -302,13 +350,13 @@ export default function AdminDashboardPage() {
               onClick={clearFilters}
               className="rounded-full border-[#d8ccb5] text-[#5d5448] hover:border-[#c9a227] hover:bg-[#c9a227]/10"
             >
-              {dictionary.filters} · reset
+              {dictionary.filters || 'Filtres'} · reset
             </Button>
           </div>
 
-          <div className="mt-6 grid gap-4 lg:grid-cols-[1.5fr_repeat(3,minmax(0,1fr))]">
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#9f9383]" />
+          <div className="mt-6 grid gap-4 xl:grid-cols-4">
+            <div className="relative xl:col-span-1">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8d7d66]" />
               <Input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
@@ -384,6 +432,7 @@ export default function AdminDashboardPage() {
                         <TableHead className="text-[#5d5448]">{dictionary.companionsTitle || 'Accompagnants'}</TableHead>
                         <TableHead className="text-[#5d5448]">{dictionary.hotel}</TableHead>
                         <TableHead className="text-[#5d5448]">{dictionary.date}</TableHead>
+                        <TableHead className="text-right text-[#5d5448]">Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -405,16 +454,17 @@ export default function AdminDashboardPage() {
                                 {getTournamentLabel(row.tournament, dictionary)}
                               </span>
                             </TableCell>
-                            <TableCell className="min-w-[220px]">
+                            <TableCell className="min-w-[260px]">
                               <DocumentPreview
                                 title={dictionary.playerPassportPreview || 'Passeport joueur'}
                                 path={row.personal_passport_path}
                                 url={documentUrls[row.personal_passport_path]}
-                                openLabel={dictionary.openDocument || 'Ouvrir'}
+                                openLabel={dictionary.openDocument || 'Inspecter'}
+                                downloadLabel={dictionary.downloadDocument || 'Télécharger'}
                                 emptyLabel={dictionary.noDocument || 'Aucun document'}
                               />
                             </TableCell>
-                            <TableCell className="min-w-[260px]">
+                            <TableCell className="min-w-[280px]">
                               {companions.length ? (
                                 <div className="space-y-3">
                                   {companions.map((companion, index) => (
@@ -425,7 +475,8 @@ export default function AdminDashboardPage() {
                                           title={dictionary.companionPassports || 'Passeports accompagnants'}
                                           path={companion.passport_path}
                                           url={documentUrls[companion.passport_path]}
-                                          openLabel={dictionary.openDocument || 'Ouvrir'}
+                                          openLabel={dictionary.openDocument || 'Inspecter'}
+                                          downloadLabel={dictionary.downloadDocument || 'Télécharger'}
                                           emptyLabel={dictionary.noDocument || 'Aucun document'}
                                           compact
                                         />
@@ -439,6 +490,22 @@ export default function AdminDashboardPage() {
                             </TableCell>
                             <TableCell className="text-[#433b30]">{row.hotel || '—'}</TableCell>
                             <TableCell className="text-[#433b30]">{formatWithLocale(row.created_at)}</TableCell>
+                            <TableCell className="min-w-[160px] text-right">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => handleDeleteRegistration(row)}
+                                disabled={deleteState[row.id]}
+                                className="rounded-full border-red-200 text-red-600 hover:border-red-300 hover:bg-red-50"
+                              >
+                                {deleteState[row.id] ? (
+                                  <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                )}
+                                {dictionary.deleteRegistration || 'Supprimer'}
+                              </Button>
+                            </TableCell>
                           </TableRow>
                         )
                       })}
@@ -463,7 +530,7 @@ function FilterField({ label, children }) {
   )
 }
 
-function DocumentPreview({ title, path, url, openLabel, emptyLabel, compact = false }) {
+function DocumentPreview({ title, path, url, openLabel, downloadLabel, emptyLabel, compact = false }) {
   if (!path) {
     return <span className="text-sm text-[#8a7e6f]">{emptyLabel}</span>
   }
@@ -473,28 +540,42 @@ function DocumentPreview({ title, path, url, openLabel, emptyLabel, compact = fa
   }
 
   const image = isImagePath(path)
+  const filename = fileNameFromPath(path)
 
   return (
     <div className={`rounded-[22px] border border-[#eadcc4] bg-white ${compact ? 'p-3' : 'p-4'}`}>
       <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[#7b6d5c]">{title}</p>
+      <p className="mt-2 break-all text-xs text-[#8a7e6f]">{filename}</p>
       {image ? (
         <a href={url} target="_blank" rel="noreferrer" className="mt-3 block overflow-hidden rounded-2xl border border-[#eadcc4] bg-[#fcfaf6] transition hover:border-[#c9a227]">
           <img src={url} alt={title} className={`w-full object-cover ${compact ? 'h-24' : 'h-32'}`} />
-          <div className="flex items-center justify-between gap-2 px-3 py-2 text-sm font-medium text-[#5d5448]">
-            <span className="inline-flex items-center gap-2"><FileImage className="h-4 w-4" /> {openLabel}</span>
-          </div>
         </a>
       ) : (
+        <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-[#d8ccb5] px-3 py-2 text-sm font-semibold text-[#5d5448]">
+          <FileText className="h-4 w-4" />
+          PDF / document
+        </div>
+      )}
+
+      <div className="mt-3 flex flex-wrap gap-2">
         <a
           href={url}
           target="_blank"
           rel="noreferrer"
-          className="mt-3 inline-flex items-center gap-2 rounded-full border border-[#d8ccb5] px-4 py-2 text-sm font-semibold text-[#5d5448] transition hover:border-[#c9a227] hover:text-[#1f1812]"
+          className="inline-flex items-center gap-2 rounded-full border border-[#d8ccb5] px-4 py-2 text-sm font-semibold text-[#5d5448] transition hover:border-[#c9a227] hover:text-[#1f1812]"
         >
-          <FileText className="h-4 w-4" />
+          {image ? <FileImage className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           {openLabel}
         </a>
-      )}
+        <a
+          href={url}
+          download={filename}
+          className="inline-flex items-center gap-2 rounded-full border border-[#d8ccb5] px-4 py-2 text-sm font-semibold text-[#5d5448] transition hover:border-[#c9a227] hover:text-[#1f1812]"
+        >
+          <Download className="h-4 w-4" />
+          {downloadLabel}
+        </a>
+      </div>
     </div>
   )
 }

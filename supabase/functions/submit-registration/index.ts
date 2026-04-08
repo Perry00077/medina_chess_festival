@@ -9,6 +9,11 @@ const ALLOWED_FILE_TYPES = [
   "image/png",
   "image/webp",
 ];
+const ALLOWED_TOURNAMENTS = ["magistral", "challenge", "blitz"];
+const ALLOWED_HOTELS = ["diar_lemdina", "belisaire", "solaria", "sans", ""];
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const phoneRegex = /^\+?[0-9][0-9\s-]{7,19}$/;
+const digitsOnlyRegex = /^\d+$/;
 
 function parseAllowedOrigins() {
   return (Deno.env.get("ALLOWED_ORIGINS") || "")
@@ -17,23 +22,32 @@ function parseAllowedOrigins() {
     .filter(Boolean);
 }
 
-function corsHeaders(origin: string | null) {
+function isOriginAllowed(origin: string) {
   const allowedOrigins = parseAllowedOrigins();
-  const allowedOrigin =
-    origin && allowedOrigins.includes(origin) ? origin : allowedOrigins[0] || "*";
+  if (!origin) return allowedOrigins.length === 0;
+  if (allowedOrigins.length === 0) return true;
+  return allowedOrigins.includes(origin);
+}
 
-  return {
-    "Access-Control-Allow-Origin": allowedOrigin,
+function buildCorsHeaders(origin: string | null) {
+  const headers: Record<string, string> = {
     "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
     "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Vary": "Origin",
     "Content-Type": "application/json",
   };
+
+  if (origin && isOriginAllowed(origin)) {
+    headers["Access-Control-Allow-Origin"] = origin;
+  }
+
+  return headers;
 }
 
 function jsonResponse(data: unknown, status = 200, origin: string | null = null) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: corsHeaders(origin),
+    headers: buildCorsHeaders(origin),
   });
 }
 
@@ -55,11 +69,14 @@ function extractExtension(name: string, contentType: string) {
   const fileExtension = fileName.includes(".") ? fileName.split(".").pop() : "";
 
   if (fileExtension) return fileExtension.toLowerCase();
-
   if (contentType === "application/pdf") return "pdf";
   if (contentType === "image/png") return "png";
   if (contentType === "image/webp") return "webp";
   return "jpg";
+}
+
+function countDigits(value: string) {
+  return value.replace(/\D/g, "").length;
 }
 
 function parseUpload(file: any, required = true) {
@@ -132,32 +149,39 @@ Deno.serve(async (req) => {
   const origin = req.headers.get("origin");
 
   if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders(origin) });
+    if (origin && !isOriginAllowed(origin)) {
+      return jsonResponse({ success: false, error: "Origin not allowed" }, 403, origin);
+    }
+    return new Response("ok", { headers: buildCorsHeaders(origin) });
   }
 
   if (req.method !== "POST") {
     return jsonResponse({ success: false, error: "Method not allowed" }, 405, origin);
   }
 
+  if (origin && !isOriginAllowed(origin)) {
+    return jsonResponse({ success: false, error: "Origin not allowed" }, 403, origin);
+  }
+
   try {
     const body = await req.json().catch(() => null);
 
-    const turnstileToken = body?.turnstileToken?.trim();
-    const first_name = body?.first_name?.trim() || "";
-    const last_name = body?.last_name?.trim() || "";
-    const full_name = body?.full_name?.trim() || `${first_name} ${last_name}`.trim();
-    const email = body?.email?.trim() || "";
-    const telephone = body?.telephone?.trim() || "";
-    const country = body?.country?.trim() || "";
+    const turnstileToken = String(body?.turnstileToken || "").trim();
+    const first_name = String(body?.first_name || "").trim();
+    const last_name = String(body?.last_name || "").trim();
+    const full_name = String(body?.full_name || `${first_name} ${last_name}`.trim()).trim();
+    const email = String(body?.email || "").trim().toLowerCase();
+    const telephone = String(body?.telephone || "").trim();
+    const country = String(body?.country || "").trim();
     const birth_date = body?.birth_date || null;
-    const elo = body?.elo?.trim() || "";
-    const fide_id = body?.fide_id?.trim() || "";
-    const tournament = body?.tournament?.trim() || "";
-    const hotel = body?.hotel?.trim() || null;
-    const message = body?.message?.trim() || "";
+    const elo = String(body?.elo || "").trim();
+    const fide_id = String(body?.fide_id || "").trim();
+    const tournament = String(body?.tournament || "").trim();
+    const hotel = String(body?.hotel || "").trim();
+    const message = String(body?.message || "").trim();
     const accept_rules = !!body?.accept_rules;
     const has_companion = !!body?.has_companion;
-    const website = body?.website?.trim() || "";
+    const website = String(body?.website || "").trim();
     const personalPassportInput = body?.personal_passport || null;
     const companionsInput = Array.isArray(body?.companions) ? body.companions : [];
 
@@ -169,8 +193,32 @@ Deno.serve(async (req) => {
       return jsonResponse({ success: false, error: "Missing CAPTCHA token" }, 400, origin);
     }
 
-    if (!first_name || !last_name || !email || !country || !accept_rules) {
+    if (!first_name || !last_name || !email || !telephone || !country || !accept_rules) {
       return jsonResponse({ success: false, error: "Missing required fields" }, 400, origin);
+    }
+
+    if (!emailRegex.test(email)) {
+      return jsonResponse({ success: false, error: "Invalid email address" }, 400, origin);
+    }
+
+    if (!phoneRegex.test(telephone) || countDigits(telephone) < 8) {
+      return jsonResponse({ success: false, error: "Invalid phone number" }, 400, origin);
+    }
+
+    if (elo && !digitsOnlyRegex.test(elo)) {
+      return jsonResponse({ success: false, error: "Invalid Elo value" }, 400, origin);
+    }
+
+    if (fide_id && !digitsOnlyRegex.test(fide_id)) {
+      return jsonResponse({ success: false, error: "Invalid FIDE ID" }, 400, origin);
+    }
+
+    if (!ALLOWED_TOURNAMENTS.includes(tournament)) {
+      return jsonResponse({ success: false, error: "Invalid tournament" }, 400, origin);
+    }
+
+    if (!ALLOWED_HOTELS.includes(hotel)) {
+      return jsonResponse({ success: false, error: "Invalid hotel value" }, 400, origin);
     }
 
     let parsedPersonalPassport = null;
@@ -224,6 +272,7 @@ Deno.serve(async (req) => {
       body: JSON.stringify({
         secret: turnstileSecret,
         response: turnstileToken,
+        remoteip: req.headers.get("x-forwarded-for") || undefined,
       }),
     });
 
@@ -258,7 +307,7 @@ Deno.serve(async (req) => {
       elo,
       fide_id,
       tournament,
-      hotel,
+      hotel: hotel || null,
       message,
       accept_rules,
       has_companion,
@@ -331,9 +380,7 @@ Deno.serve(async (req) => {
               </div>
               <div style="padding:32px;">
                 <h2 style="margin-top:0;color:#111827;">Bienvenue 👋</h2>
-                <p style="color:#374151;font-size:16px;line-height:1.6;">
-                  Votre inscription a bien été enregistrée.
-                </p>
+                <p style="color:#374151;font-size:16px;line-height:1.6;">Votre inscription a bien été enregistrée.</p>
                 <div style="margin:24px 0;padding:16px;background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;">
                   <p style="margin:0;color:#111827;"><strong>Nom :</strong> ${escapeHtml(full_name)}</p>
                   <p style="margin:0;color:#111827;"><strong>Email :</strong> ${escapeHtml(email)}</p>

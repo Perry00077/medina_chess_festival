@@ -16,6 +16,9 @@ Deno.serve(async (req) => {
   const origin = req.headers.get("origin") || "";
 
   if (req.method === "OPTIONS") {
+    if (origin && !isOriginAllowed(origin)) {
+      return jsonResponse(origin, { success: false, error: "Origin not allowed" }, 403);
+    }
     return new Response("ok", { headers: buildCorsHeaders(origin) });
   }
 
@@ -115,10 +118,15 @@ Deno.serve(async (req) => {
 });
 
 function buildCorsHeaders(origin: string) {
-  return {
+  const headers: Record<string, string> = {
     ...corsBaseHeaders,
-    "Access-Control-Allow-Origin": isOriginAllowed(origin) ? origin || "*" : allowedOrigins[0] || "null",
   };
+
+  if (origin && isOriginAllowed(origin)) {
+    headers["Access-Control-Allow-Origin"] = origin;
+  }
+
+  return headers;
 }
 
 function jsonResponse(origin: string, data: unknown, status = 200) {

@@ -1,17 +1,22 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
+
+function buildSectionLink(pathname, hash) {
+  return pathname === "/" ? hash : `/${hash}`;
+}
 
 export default function Footer() {
   const { dictionary } = useLanguage();
+  const location = useLocation();
 
   const footerLinks = [
-    ["#festival", dictionary.festival],
-    ["#tournois", dictionary.tournaments],
-    ["#hebergement", dictionary.accommodation],
-    ["#programme", dictionary.programme],
-    ["#prix", dictionary.prizes],
-    ["#galerie", dictionary.gallery],
-    ["#contact", dictionary.contact],
+    { type: "anchor", href: buildSectionLink(location.pathname, "#festival"), label: dictionary.festival },
+    { type: "anchor", href: buildSectionLink(location.pathname, "#tournois"), label: dictionary.tournaments },
+    { type: "anchor", href: buildSectionLink(location.pathname, "#hebergement"), label: dictionary.accommodation },
+    { type: "anchor", href: buildSectionLink(location.pathname, "#programme"), label: dictionary.programme },
+    { type: "anchor", href: buildSectionLink(location.pathname, "#prix"), label: dictionary.prizes },
+    { type: "anchor", href: buildSectionLink(location.pathname, "#galerie"), label: dictionary.gallery },
+    { type: "route", href: "/registration", label: dictionary.contact },
   ];
 
   return (
@@ -35,15 +40,25 @@ export default function Footer() {
           </div>
 
           <div className="flex flex-wrap gap-3 lg:justify-end">
-            {footerLinks.map(([href, label]) => (
-              <a
-                key={href}
-                href={href}
-                className="text-sm text-[#cfc2ae] transition hover:text-[#d9bb64]"
-              >
-                {label}
-              </a>
-            ))}
+            {footerLinks.map((item) =>
+              item.type === "route" ? (
+                <Link
+                  key={item.href}
+                  to={item.href}
+                  className="text-sm text-[#cfc2ae] transition hover:text-[#d9bb64]"
+                >
+                  {item.label}
+                </Link>
+              ) : (
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className="text-sm text-[#cfc2ae] transition hover:text-[#d9bb64]"
+                >
+                  {item.label}
+                </a>
+              ),
+            )}
           </div>
         </div>
       </div>

@@ -1,24 +1,32 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { Menu, ShieldCheck, X } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Menu, X } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import LanguageSwitcher from "./LanguageSwitcher";
 import { useLanguage } from "../contexts/LanguageContext";
+
+function buildSectionLink(pathname, hash) {
+  return pathname === "/" ? hash : `/${hash}`;
+}
 
 export default function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { dictionary } = useLanguage();
+  const location = useLocation();
 
-  const navItems = [
-    ["#festival", dictionary.festival],
-    ["#tournois", dictionary.tournaments],
-    ["#hebergement", dictionary.accommodation],
-    ["#programme", dictionary.programme],
-    ["#prix", dictionary.prizes],
-    ["#galerie", dictionary.gallery],
-    ["#contact", dictionary.contact],
-  ];
+  const navItems = useMemo(
+    () => [
+      { type: "anchor", href: buildSectionLink(location.pathname, "#festival"), label: dictionary.festival },
+      { type: "anchor", href: buildSectionLink(location.pathname, "#tournois"), label: dictionary.tournaments },
+      { type: "anchor", href: buildSectionLink(location.pathname, "#hebergement"), label: dictionary.accommodation },
+      { type: "anchor", href: buildSectionLink(location.pathname, "#programme"), label: dictionary.programme },
+      { type: "anchor", href: buildSectionLink(location.pathname, "#prix"), label: dictionary.prizes },
+      { type: "anchor", href: buildSectionLink(location.pathname, "#galerie"), label: dictionary.gallery },
+      { type: "route", href: "/registration", label: dictionary.contact },
+    ],
+    [dictionary, location.pathname],
+  );
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 60);
@@ -52,20 +60,24 @@ export default function Header() {
         </Link>
 
         <nav className="hidden items-center gap-6 xl:flex">
-          {navItems.map(([href, label], index) => (
-            <a
-              key={href}
-              href={href}
-              className={[
-                "text-sm font-medium transition",
-                index === navItems.length - 1
-                  ? "rounded-full border border-[#c9a227]/25 bg-[#c9a227]/10 px-4 py-2 text-[#f2d77e] hover:bg-[#c9a227] hover:text-[#111111]"
-                  : "text-[#efe6d8] hover:text-[#d9bb64]",
-              ].join(" ")}
-            >
-              {label}
-            </a>
-          ))}
+          {navItems.map((item, index) => {
+            const className = [
+              "text-sm font-medium transition",
+              index === navItems.length - 1
+                ? "rounded-full border border-[#c9a227]/25 bg-[#c9a227]/10 px-4 py-2 text-[#f2d77e] hover:bg-[#c9a227] hover:text-[#111111]"
+                : "text-[#efe6d8] hover:text-[#d9bb64]",
+            ].join(" ");
+
+            return item.type === "route" ? (
+              <Link key={item.href} to={item.href} className={className}>
+                {item.label}
+              </Link>
+            ) : (
+              <a key={item.href} href={item.href} className={className}>
+                {item.label}
+              </a>
+            );
+          })}
         </nav>
 
         <div className="hidden lg:block">
@@ -91,24 +103,27 @@ export default function Header() {
             className="overflow-hidden border-t border-white/10 bg-[#0d0d0d]/95 xl:hidden"
           >
             <div className="container space-y-3 py-4">
-              {navItems.map(([href, label]) => (
-                <a
-                  key={href}
-                  href={href}
-                  onClick={() => setOpen(false)}
-                  className="block rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-[#efe6d8]"
-                >
-                  {label}
-                </a>
-              ))}
-              <Link
-                to="/admin/login"
-                onClick={() => setOpen(false)}
-                className="flex items-center gap-2 rounded-2xl border border-[#c9a227]/20 bg-[#c9a227]/10 px-4 py-3 text-sm font-semibold text-[#f2d77e]"
-              >
-                <ShieldCheck className="h-4 w-4" />
-                {dictionary.admin}
-              </Link>
+              {navItems.map((item) =>
+                item.type === "route" ? (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    onClick={() => setOpen(false)}
+                    className="block rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-[#efe6d8]"
+                  >
+                    {item.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className="block rounded-2xl border border-white/10 bg-white/5 px-4 py-3 text-sm font-medium text-[#efe6d8]"
+                  >
+                    {item.label}
+                  </a>
+                ),
+              )}
               <LanguageSwitcher />
             </div>
           </motion.div>

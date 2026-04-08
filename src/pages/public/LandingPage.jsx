@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
-import RegistrationForm from "../../components/RegistrationForm";
 import { useLanguage } from "../../contexts/LanguageContext";
 import medinaImage from "../../assets/medina.jpg";
 import beachImage from "../../assets/hammamet-yasmine-beach-image.jpg";
@@ -32,6 +31,29 @@ const fadeUp = {
   hidden: { opacity: 0, y: 28 },
   visible: { opacity: 1, y: 0 },
 };
+const HOTEL_META = {
+  diar_lemdina: {
+    stars: "★★★★",
+    website: "https://diarlemdina.medinahotelsandresorts.com/en",
+  },
+  belisaire: {
+    stars: "★★★★",
+    website: "https://belisaire.medinahotelsandresorts.com/fr",
+  },
+  solaria: {
+    stars: "★★★★★",
+    website: "https://www.solaria.medinahotelsandresorts.com/",
+  },
+};
+
+function getHotelMeta(name) {
+  const value = String(name || "").toLowerCase();
+  if (value.includes("diar")) return HOTEL_META.diar_lemdina;
+  if (value.includes("belisaire") || value.includes("bélisaire")) return HOTEL_META.belisaire;
+  if (value.includes("solaria")) return HOTEL_META.solaria;
+  return { stars: "★★★★", website: null };
+}
+
 
 const prizeContentMap = {
   fr: {
@@ -485,7 +507,7 @@ const landingContent = {
         },
         {
           name: "Bélisaire & Thalasso",
-          highlight: "700 m du complexe · Idéal familles",
+          highlight: "700 m du complexe · Hôtel partenaire",
           price: "790 €",
           copy: "Une option équilibrée pour les familles, avec chambres spacieuses, accès rapide au site du tournoi, plage privée et centre de thalassothérapie.",
           bullets: [
@@ -866,7 +888,7 @@ const landingContent = {
         },
         {
           name: "Belisaire & Thalasso",
-          highlight: "700 m from the venue · family friendly",
+          highlight: "700 m from the venue · partner hotel",
           price: "€790",
           copy: "A balanced option for families, with spacious rooms, quick access to the venue, private beach, and a thalassotherapy center.",
           bullets: [
@@ -1233,7 +1255,7 @@ const landingContent = {
         },
         {
           name: "Belisaire & Thalasso",
-          highlight: "700 m vom Komplex · ideal für Familien",
+          highlight: "700 m vom Komplex · Hotelpartner",
           price: "790 €",
           copy: "Eine ausgewogene Option für Familien mit großzügigen Zimmern, schnellem Zugang zum Turnierort, Privatstrand und Thalassotherapie-Zentrum.",
           bullets: [
@@ -1619,7 +1641,7 @@ const landingContent = {
         },
         {
           name: "Belisaire & Thalasso",
-          highlight: "700 м от комплекса · идеально для семей",
+          highlight: "700 м от комплекса · партнёр-отель",
           price: "790 €",
           copy: "Сбалансированный вариант для семей: просторные номера, быстрый доступ к месту турнира, частный пляж и центр талассотерапии.",
           bullets: [
@@ -1995,7 +2017,7 @@ const landingContent = {
         },
         {
           name: "Belisaire & Thalasso",
-          highlight: "على بعد 700 م من المركب · مناسب للعائلات",
+          highlight: "على بعد 700 م من المركب · فندق شريك",
           price: "790 €",
           copy: "خيار متوازن للعائلات مع غرف واسعة ووصول سريع إلى موقع البطولة وشاطئ خاص ومركز للعلاج بمياه البحر.",
           bullets: [
@@ -2170,12 +2192,12 @@ export default function LandingPage() {
               </div>
 
               <div className="flex flex-col gap-4 sm:flex-row">
-                <a
-                  href="#contact"
+                <Link
+                  to="/registration"
                   className="inline-flex items-center justify-center rounded-full bg-[#c9a227] px-7 py-4 text-sm font-bold uppercase tracking-[0.14em] text-[#111111] transition hover:-translate-y-0.5 hover:bg-[#d7b966]"
                 >
                   {dictionary.registerNow}
-                </a>
+                </Link>
                 <a
                   href="#tournois"
                   className="inline-flex items-center justify-center rounded-full border border-white/20 px-7 py-4 text-sm font-semibold uppercase tracking-[0.14em] text-white transition hover:border-[#c9a227] hover:text-[#e7c86f]"
@@ -2503,7 +2525,7 @@ export default function LandingPage() {
                 className="flex h-full flex-col rounded-[32px] border border-white/10 bg-[#16120f] p-6 text-[#f4ece1] shadow-[0_25px_80px_rgba(0,0,0,0.22)]"
               >
                 <p className="text-sm uppercase tracking-[0.24em] text-[#c9a227]">
-                  ★★★★
+                  {getHotelMeta(hotel.name).stars}
                 </p>
                 <h3 className="mt-4 font-display text-3xl text-white">
                   {hotel.name}
@@ -2522,11 +2544,24 @@ export default function LandingPage() {
                     </li>
                   ))}
                 </ul>
-                <div className="mt-auto pt-6 font-display text-4xl text-[#f8e7aa]">
-                  {hotel.price}
-                  <span className="ml-2 text-sm font-sans uppercase tracking-[0.18em] text-[#cec1ad]">
-                    {content.accommodation.perPerson}
-                  </span>
+                <div className="mt-auto pt-6">
+                  <div className="font-display text-4xl text-[#f8e7aa]">
+                    {hotel.price}
+                    <span className="ml-2 text-sm font-sans uppercase tracking-[0.18em] text-[#cec1ad]">
+                      {content.accommodation.perPerson}
+                    </span>
+                  </div>
+                  {getHotelMeta(hotel.name).website ? (
+                    <a
+                      href={getHotelMeta(hotel.name).website}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-4 inline-flex items-center gap-2 rounded-full border border-[#c9a227]/25 bg-[#c9a227]/10 px-4 py-2 text-sm font-semibold text-[#f2d77e] transition hover:bg-[#c9a227] hover:text-[#111111]"
+                    >
+                      {dictionary.hotelWebsite || "Site de l’hôtel"}
+                      <ArrowRight className="h-4 w-4" />
+                    </a>
+                  ) : null}
                 </div>
               </motion.article>
             ))}
@@ -2684,8 +2719,49 @@ export default function LandingPage() {
           emphasis={content.contact.emphasis}
         >
           <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-            <div>
-              <RegistrationForm />
+            <div className="space-y-6 rounded-[34px] border border-[#d8ccb5] bg-white p-6 shadow-[0_18px_50px_rgba(0,0,0,0.08)] sm:p-8">
+              <div className="inline-flex rounded-full border border-[#c9a227]/25 bg-[#c9a227]/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.22em] text-[#946f1c]">
+                {dictionary.formBadge || "Formulaire d’inscription"}
+              </div>
+              <div>
+                <h3 className="font-display text-4xl text-[#1f1812]">
+                  {dictionary.contact}
+                </h3>
+                <p className="mt-3 text-sm leading-7 text-[#5d5448]">
+                  {dictionary.formDescription || "Le formulaire complet est maintenant disponible sur une page dédiée pour offrir une saisie plus claire, de meilleurs contrôles et un envoi plus sécurisé."}
+                </p>
+              </div>
+
+              <div className="space-y-4 rounded-[28px] border border-[#eadcc4] bg-[#fcfaf6] p-5">
+                {[
+                  dictionary.personalPassportRequired || "Passeport du joueur obligatoire.",
+                  dictionary.companionValidationError || "Chaque accompagnant doit avoir un nom complet et un passeport.",
+                  dictionary.emailInvalid || "L’adresse email doit être valide.",
+                ].map((item) => (
+                  <div key={item} className="flex gap-3 text-sm leading-7 text-[#5d5448]">
+                    <CheckCircle2 className="mt-1 h-4 w-4 shrink-0 text-[#b0862d]" />
+                    <span>{item}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-wrap gap-4">
+                <Link
+                  to="/registration"
+                  className="inline-flex items-center gap-2 rounded-full bg-[#c9a227] px-6 py-3 text-sm font-semibold text-[#111111] transition hover:bg-[#d7b966]"
+                >
+                  {dictionary.registerNow}
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <a
+                  href="/docs/reglement-interieur-mcf-2026.docx"
+                  download
+                  className="inline-flex items-center gap-2 rounded-full border border-[#d8ccb5] px-6 py-3 text-sm font-semibold text-[#5d5448] transition hover:border-[#c9a227] hover:text-[#1f1812]"
+                >
+                  <Download className="h-4 w-4" />
+                  {dictionary.downloadMainRules || "Télécharger le règlement général"}
+                </a>
+              </div>
             </div>
             <div className="space-y-6">
               <InfoPanel title={content.contact.infoTitle} icon={MapPin}>
