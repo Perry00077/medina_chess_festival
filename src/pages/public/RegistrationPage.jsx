@@ -14,7 +14,7 @@ export default function RegistrationPage() {
       <main>
         <section className="pb-12 pt-10 sm:pb-16 sm:pt-14">
           <div className="container grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
-            <div className="space-y-6 rounded-[34px] border border-white/10 bg-[#111111]/92 p-6 text-white shadow-[0_28px_90px_rgba(0,0,0,0.28)] sm:p-8">
+            <div className="space-y-6 rounded-[34px] border border-white/10 bg-[#0d0d0d]/95 p-6 text-white shadow-[0_28px_90px_rgba(0,0,0,0.28)] sm:p-8">
               <div className="inline-flex rounded-full border border-[#c9a227]/30 bg-[#c9a227]/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-[#f1d57b]">
                 {dictionary.formBadge || "Formulaire d’inscription"}
               </div>
