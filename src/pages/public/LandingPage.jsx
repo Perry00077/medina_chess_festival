@@ -94,7 +94,7 @@ const prizeContentMap = {
       ["Spéciaux tunisiens", "3°", "100 €", "100 €", "—", "200 €"],
     ],
     grandTotalLabel: "TOTAL PRIX",
-    grandTotal: "15 020 €",
+    grandTotal: "15 000 €",
     sponsorNote:
       "Les prix spéciaux tunisiens en numéraire et en nature seront communiqués ultérieurement par les sponsors.",
   },
@@ -178,7 +178,7 @@ const prizeContentMap = {
       ["Tunesische Sonderpreise", "3.", "100 €", "100 €", "—", "200 €"],
     ],
     grandTotalLabel: "GESAMTPREISFONDS",
-    grandTotal: "15 020 €",
+    grandTotal: "15 000 €",
     sponsorNote:
       "Tunesische Sonderpreise in Geld- und Sachwerten werden später von den Sponsoren bekanntgegeben.",
   },
@@ -220,7 +220,7 @@ const prizeContentMap = {
       ["Специальные призы Туниса", "3", "100 €", "100 €", "—", "200 €"],
     ],
     grandTotalLabel: "ОБЩИЙ ПРИЗОВОЙ ФОНД",
-    grandTotal: "15 020 €",
+    grandTotal: "15 000 €",
     sponsorNote:
       "Специальные тунисские денежные и натуральные призы будут объявлены позже спонсорами.",
   },
@@ -262,7 +262,7 @@ const prizeContentMap = {
       ["جوائز تونسية خاصة", "3", "100 €", "100 €", "—", "200 €"],
     ],
     grandTotalLabel: "إجمالي الجوائز",
-    grandTotal: "15 020 €",
+    grandTotal: "15 000 €",
     sponsorNote:
       "سيتم الإعلان لاحقًا عن الجوائز التونسية الخاصة النقدية والعينية من طرف الرعاة.",
   },
@@ -271,7 +271,7 @@ const prizeContentMap = {
 const landingContent = {
   fr: {
     stats: [
-      { value: "15 020 €", label: "de prix", icon: Medal },
+      { value: "15 000 €", label: "de prix", icon: Medal },
       { value: "3", label: "tournois", icon: Crown },
       { value: "9", label: "nuits", icon: BedDouble },
       { value: "FIDE", label: "homologué", icon: Shield },
@@ -1024,7 +1024,7 @@ const landingContent = {
   },
   de: {
     stats: [
-      { value: "15 020 €", label: "Preisgeld", icon: Medal },
+      { value: "15 000 €", label: "Preisgeld", icon: Medal },
       { value: "3", label: "Turniere", icon: Crown },
       { value: "9", label: "Nächte", icon: BedDouble },
       { value: "FIDE", label: "anerkannt", icon: Shield },
@@ -1391,7 +1391,7 @@ const landingContent = {
   },
   ru: {
     stats: [
-      { value: "15 020 €", label: "призовой фонд", icon: Medal },
+      { value: "15 000 €", label: "призовой фонд", icon: Medal },
       { value: "3", label: "турнира", icon: Crown },
       { value: "9", label: "ночей", icon: BedDouble },
       { value: "FIDE", label: "рейтинг", icon: Shield },
@@ -1781,7 +1781,7 @@ const landingContent = {
   },
   ar: {
     stats: [
-      { value: "15 020 €", label: "جوائز", icon: Medal },
+      { value: "15 000 €", label: "جوائز", icon: Medal },
       { value: "3", label: "دورات", icon: Crown },
       { value: "9", label: "ليالٍ", icon: BedDouble },
       { value: "FIDE", label: "معتمد", icon: Shield },
