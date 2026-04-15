@@ -3,7 +3,6 @@ export const languages = {
   en: { label: "EN", dir: "ltr", locale: "en-US" },
   de: { label: "DE", dir: "ltr", locale: "de-DE" },
   ru: { label: "RU", dir: "ltr", locale: "ru-RU" },
-  ar: { label: "AR", dir: "rtl", locale: "ar-TN" },
 };
 
 export const translations = {
